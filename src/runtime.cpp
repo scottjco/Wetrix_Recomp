@@ -5,6 +5,7 @@
 #include "audio.h"
 #include "pak.h"
 #include "controller_bridge.h"
+#include "startup.h"
 #include <memory>
 #include "ultramodern/ultramodern.hpp"
 #include <atomic>
@@ -250,10 +251,8 @@ extern "C" void osSpTaskYielded_recomp(uint8_t*, recomp_context* ctx) { ctx->r2 
 
 int main(int argc, char** argv) {
     setvbuf(stdout, nullptr, _IONBF, 0);
-    if (argc != 2) { fprintf(stderr, "Usage: WetrixRuntime.exe data.z64\n"); return 1; }
-    std::ifstream input(argv[1], std::ios::binary);
-    rom.assign(std::istreambuf_iterator<char>(input), {});
-    if (rom.size() != 0x800000) { fprintf(stderr, "Wrong ROM size\n"); return 1; }
+    const int startup = wetrix_load_rom(argc, argv, rom);
+    if (startup != 0) return startup < 0 ? 1 : 0;
     try {
         controller_pak = std::make_unique<WetrixPak>("saves/controller1.mpk");
         puts("Controller pak present: saves/controller1.mpk (32 KiB)");

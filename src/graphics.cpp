@@ -142,6 +142,16 @@ bool wetrix_graphics_init(uint8_t* rdram, uint8_t* header) {
         startup_area.y+(startup_area.h-startup_height)/2,
         startup_width,startup_height,window_flags);
     if(!window) return false;
+#ifdef _WIN32
+    {
+        SDL_SysWMinfo icon_info{}; SDL_VERSION(&icon_info.version);
+        if (SDL_GetWindowWMInfo(window, &icon_info)) {
+            HICON icon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(1));
+            SendMessageW(icon_info.info.win.window, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
+            SendMessageW(icon_info.info.win.window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon));
+        }
+    }
+#endif
 #if defined(_WIN32) || defined(__APPLE__)
     SDL_SysWMinfo info{}; SDL_VERSION(&info.version);
     if(!SDL_GetWindowWMInfo(window,&info)) return false;

@@ -44,3 +44,7 @@ The twenty-two shipped SVG control/navigation and visual-mapping icons are newly
 ## Optional HD game-art pack
 
 The application archive excludes `Textures/`. Optional game-related redraws are distributed separately, with AI assistance disclosed. Original/derived game artwork and trademarks are not relicensed by the application's GPL. A replacement being newly generated, high resolution, or AI-assisted does not establish rights in the original designs. The project makes no claim of permission from the original game's rights holders.
+
+## Application icon
+
+The embedded desktop icon in `resources/wetrix.ico` is converted from the reviewed AI-assisted HD Wetrix logo redraw. Its original game design and trademark remain with their rights holders. This small application-branding asset is separate from the optional texture pack and excluded from the application code GPL grant. See `resources/NOTICE.txt`.

@@ -73,11 +73,11 @@ def package(build,platform,arch):
             if binary!=stage/executable: subprocess.run(["install_name_tool","-id","@loader_path/"+binary.name,str(binary)],check=True)
         for binary in list(libs.iterdir())+[stage/executable]: subprocess.run(["codesign","--force","--sign","-",str(binary)],check=True)
     shutil.copytree(ROOT/"Assets/menu",stage/"assets")
-    if platform=="Windows":
-        (stage/"Run Wetrix.cmd").write_text('@echo off\ncd /d "%~dp0"\nWetrixRuntime.exe Assets/data.z64\npause\n')
-    else:
+    shutil.copy2(ROOT/"resources/wetrix.ico",stage/"Wetrix.ico")
+    shutil.copy2(ROOT/"resources/NOTICE.txt",stage/"licenses-icon.txt")
+    if platform!="Windows":
         launcher=stage/("Run Wetrix.command" if platform=="macOS" else "Run Wetrix.sh")
-        launcher.write_text('#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./WetrixRuntime Assets/data.z64\n')
+        launcher.write_text('#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./WetrixRuntime\n')
         launcher.chmod(0o755)
     for n in ["README.md","CHANGELOG.md","LICENSE","THIRD_PARTY_NOTICES.md"]:
         if (ROOT/n).is_file(): shutil.copy2(ROOT/n,stage/n)
@@ -85,7 +85,7 @@ def package(build,platform,arch):
         if p.is_file() and ".git" not in p.parts and p.name.lower().startswith(("license","licence","copying","notice")):
             dest=stage/"licenses"/p.relative_to(ROOT);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,dest)
     if (ROOT/"release-notices").is_dir(): shutil.copytree(ROOT/"release-notices",stage/"licenses/extra")
-    (stage/"RUNNING.txt").write_text("Supply your own supported Wetrix ROM at Assets/data.z64. No ROM, HD texture pack, save or personal settings are included. Extract to a writable directory and use the Run Wetrix launcher. Linux requires SDL2, GTK3, FreeType, Vulkan and a supported GPU driver. macOS binaries are ad-hoc signed, not notarized.\n")
+    (stage/"RUNNING.txt").write_text("Run WetrixRuntime.exe directly on Windows (no command script needed), or the Run Wetrix launcher on Linux/macOS. If Assets/data.z64 is missing, a file picker opens; select your supported Wetrix ROM and it will be verified and imported locally. Extract to a writable directory. No ROM, HD texture pack, save or personal settings are included. Linux requires SDL2, GTK3, FreeType, Vulkan and a supported GPU driver. macOS binaries are ad-hoc signed, not notarized.\n")
     revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
     (stage/"BUILD-INFO.txt").write_text(f"Version: 0.1.0\nCommit: {revision}\nPlatform: {platform} {arch}\n")
     for p in stage.rglob("*"):

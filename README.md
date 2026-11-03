@@ -29,7 +29,7 @@ Classic, Challenge and Practice, with HD Textures and Expand enabled. Each board
 
 Download the application for your platform from [Releases](https://github.com/scottjco/Wetrix_Recomp/releases/tag/v0.1.0). The optional HD texture pack is a separate download there. macOS builds require macOS 15 or newer; Linux builds use Ubuntu 24.04 as their baseline.
 
-Extract the application into a writable folder and follow the launcher instructions in your archive. The local Windows launcher is `Run Wetrix.cmd`, using `Assets/data.z64`. Press **Escape** for settings and **Alt+Enter** to switch fullscreen/windowed.
+Extract the application into a writable folder. On Windows, open **WetrixRuntime.exe** directly; no command script or console window is needed. On Linux/macOS use the supplied launcher. If `Assets/data.z64` is missing, a file picker opens; select your supported ROM to verify and import it for future launches. Press **Escape** for settings and **Alt+Enter** to switch fullscreen/windowed.
 
 The supported ROM is an 8,388,608-byte big-endian `.z64` image, internal title `WETRIX`, country E, revision 0, with SHA-256:
 

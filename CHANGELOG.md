@@ -9,6 +9,8 @@ First public preview of Wetrix Recompiled.
 - Optional HD texture pack distributed separately and enabled by default when installed.
 - Persistent, automatically formatted Controller Pak; no shared save template.
 - Windowed launch, automatic starting monitor and in-game settings without a launcher screen.
+- Direct Windows executable launch without a console window; automatic ROM picker/import when the ROM is missing.
+- Embedded desktop icon converted from the reviewed HD Wetrix logo.
 - Rainbow animation timing correction for Hybrid mode and missing PLAY corner texture replacement.
 
 This is an early preview. Platform build success is distinct from gameplay testing.
