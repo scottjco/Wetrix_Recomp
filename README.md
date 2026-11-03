@@ -13,6 +13,14 @@ Actual Windows captures of the Classic title menu. The game animates between cap
 | Original artwork | ![Original artwork in 4:3](docs/screenshots/title-native-original.png) | ![Original artwork in Expand](docs/screenshots/title-native-expand.png) |
 | Optional HD artwork | ![HD artwork in 4:3](docs/screenshots/title-hd-original.png) | ![HD artwork in Expand](docs/screenshots/title-hd-expand.png) |
 
+### Gameplay
+
+Classic, Challenge and Practice, with HD Textures and Expand enabled. Each board was started automatically through its native menu callback, played through eight piece drops, then frozen in a temporary capture build to prevent game over. The published game is unchanged.
+
+| Classic | Challenge | Practice |
+| --- | --- | --- |
+| [![Classic gameplay](docs/screenshots/classic-hd-expand.png)](docs/screenshots/classic-hd-expand.png) | [![Challenge gameplay](docs/screenshots/challenge-hd-expand.png)](docs/screenshots/challenge-hd-expand.png) | [![Practice gameplay](docs/screenshots/practice-hd-expand.png)](docs/screenshots/practice-hd-expand.png) |
+
 ## Getting started
 
 Download the application for your platform from [Releases](https://github.com/scottjco/Wetrix_Recomp/releases/tag/v0.1.0). The optional HD texture pack is a separate download there. macOS builds require macOS 15 or newer; Linux builds use Ubuntu 24.04 as their baseline.
@@ -74,5 +82,7 @@ Settings fonts include Inter, Noto Emoji and PromptFont. PromptFont is by Yukari
 ## AI assistance disclosure
 
 AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-engineering analysis, asset inventory and documentation. The optional HD pack includes AI-generated and AI-edited redraws followed by extraction, alignment and alpha cleanup.
+
+Claude would probably file these water bugs under “watergate” and call the folder a feature. (Yes, that name is intentional.)
 
 The human project owner directed the work, reviewed visuals and playtested changes. That does not make the implementation wholly human-authored or guarantee that every AI-assisted change is correct. Credit for the game and the foundations enabling this project stays with their original creators and contributors.

@@ -17,3 +17,17 @@ The optional HD setting also restores the original platter geometry when Off.
 
 Screenshot capture settings and keyboard device selection were temporary;
 personal settings were backed up for restoration and are not distributed.
+
+Gameplay captures added 2026-11-03:
+classic-hd-expand.png: native Classic mode 1.
+challenge-hd-expand.png: native Challenge mode 64 (first challenge).
+practice-hd-expand.png: native Practice mode 128 (first practice board).
+
+HD Textures On, Aspect Ratio Expand, Hybrid mode, 60 FPS target. A local-only
+capture build invokes each original menu start callback, steers/rotates and
+holds native drop through eight piece placements, then stops simulation
+updates while rendering remains active. This prevents game over during the
+capture. No terrain, score, water or artwork was composited into the images.
+Capture hooks and temporary keyboard/device preferences are not part of the
+published executable or committed game source. Personal saves/settings were
+not used; the capture build ran from a separate working directory.
