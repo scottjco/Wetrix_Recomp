@@ -83,6 +83,6 @@ Settings fonts include Inter, Noto Emoji and PromptFont. PromptFont is by Yukari
 
 AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-engineering analysis, asset inventory and documentation. The optional HD pack includes AI-generated and AI-edited redraws followed by extraction, alignment and alpha cleanup.
 
-Claude would probably file these water bugs under ìwatergateî and call the folder a feature. (Yes, that name is intentional.)
+Claude would probably file these water bugs under ‚Äúwatergate‚Äù and call the folder a feature. (Yes, that name is intentional.)
 
 The human project owner directed the work, reviewed visuals and playtested changes. That does not make the implementation wholly human-authored or guarantee that every AI-assisted change is correct. Credit for the game and the foundations enabling this project stays with their original creators and contributors.
