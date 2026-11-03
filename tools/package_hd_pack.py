@@ -31,6 +31,7 @@ custom font at 16x native resolution for 4K, with cleaned transparent edges.
 The idle/demo Wetrix plaque uses a new 16x redraw. The clock's ten states and
 the English earthquake meter's gray/colored fill variants are included.
 The GAME DESIGN STUDIO subtitle under ZED TWO also uses a 16x redraw.
+All ten red digital lesson/timer digits have cleaned 16x redraws.
 Original frame order, animation timing, transparency and placement are kept.
 The copyright text continues using the game's original letter animation.
 

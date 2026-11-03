@@ -251,7 +251,7 @@ text = "wetrix_background_marker(rdram, 0);"
 
 [[patches.hook]]
 func = "func_80047128"
-text = "wetrix_background_marker(rdram, 9);"
+text = "wetrix_background_marker(rdram, 17);"
 
 [[patches.hook]]
 func = "func_80047128"
@@ -373,3 +373,17 @@ func = "func_80014BFC"
 before_vram = 0x80014F60
 text = "ctx->f2.d *= wetrix_rainbow_visual_step();"
 
+
+# Exact lesson P1 label span, independently centred in its own view.
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x80024278
+text = "wetrix_background_marker(rdram, 13);"
+
+
+# Digital timer digits fit in 16x13; clamp to the loaded extents so HD hashes
+# cannot include stale TMEM outside the upload (native masks requested 32x32).
+[[patches.hook]]
+func = "func_8004A190"
+before_vram = 0x8004A7F4
+text = "if ((uint32_t)ctx->r22 >= 22 && (uint32_t)ctx->r22 <= 31) ctx->r7 = 0x80200;"

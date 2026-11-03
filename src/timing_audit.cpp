@@ -196,22 +196,25 @@ extern "C" void wetrix_background_marker(uint8_t* rdram, unsigned layer) {
     else if (layer == 0) wetrix_cpu_counter_span = false;
     // Resolve player identity on the game/producer thread. The renderer only
     // consumes immutable draw-call tags, never live player pointers.
-    if (layer >= 8 && layer <= 11) {
+    if ((layer >= 8 && layer <= 11) || layer == 17) {
         const bool multiplayer = MEM_W(0, int32_t(0x800876D0)) == 2;
         const uint32_t current = uint32_t(MEM_W(0, int32_t(0x800A2780)));
         const uint32_t first = uint32_t(MEM_W(0, int32_t(0x800A2D60)));
         const uint32_t second = uint32_t(MEM_W(0, int32_t(0x800A2D64)));
-        if (layer == 8) { // Earthquake meter: only P1 faces the outside edge.
-            layer = multiplayer && current == first ? 8 : 5;
+        if (layer == 8) { // Each earthquake meter anchors to its own view left edge.
+            layer = !multiplayer ? 5 : current == first ? 8 : 14;
         }
-        else if (layer == 9) { // Beaker and its complete next-piece preview.
-            layer = !multiplayer ? 6 : current == second ? 9 : 6;
+        else if (layer == 9) { // Complete next-piece preview; follows its own beaker anchor.
+            layer = !multiplayer ? 6 : current == second ? 9 : 15;
         }
         else if (layer == 10) { // Exact CPU-label span in func80024120.
             layer = multiplayer ? 10 : 0;
         }
+        else if (layer == 17) { // Beaker itself supplies the preview anchor.
+            layer = !multiplayer ? 6 : current == second ? 18 : 17;
+        }
         else { // Exact CPU-counter span; this routine draws both players.
-            layer = multiplayer ? 9 : 0;
+            layer = multiplayer ? 16 : 0;
         }
     }
     wetrix_write_resolved_marker(rdram, layer);
@@ -234,8 +237,8 @@ extern "C" void wetrix_pop_background_marker(uint8_t* rdram) {
     if (wetrix_marker_stack.empty()) return;
     const unsigned parent = wetrix_marker_stack.back();
     wetrix_marker_stack.pop_back();
-    // Restore the already-resolved tag. Resolving tag9 again from live current
-    // player RAM would misclassify CPU counters drawn in a two-player loop.
+    // Restore the resolved tag without reinterpreting live player identity;
+    // nested panels can be drawn while the CPU loop still has P1 selected.
     if (wetrix_marker_layer != parent) wetrix_write_resolved_marker(rdram, parent);
     static thread_local unsigned audit_count = 0;
     if (wetrix_hud_audit_enabled() && wetrix_cpu_counter_span && audit_count++ < 8) {
@@ -249,6 +252,6 @@ extern "C" void wetrix_audit_cpu_counter(unsigned player_index) {
     if (!wetrix_hud_audit_enabled() || player_index != 1 || audit_count++ >= 4) return;
     printf("CPU HUD boxed counter end: tag11 active%d, resolved layer%u, panel depth%zu; %s after border, fill and three digits\n",
         wetrix_cpu_counter_span ? 1 : 0, wetrix_marker_layer, wetrix_marker_stack.size(),
-        wetrix_cpu_counter_span && wetrix_marker_layer == 9 && wetrix_marker_stack.empty() ? "PASS" : "FAIL");
+        wetrix_cpu_counter_span && wetrix_marker_layer == 16 && wetrix_marker_stack.empty() ? "PASS" : "FAIL");
     fflush(stdout);
 }

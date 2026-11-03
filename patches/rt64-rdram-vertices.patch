@@ -505,7 +505,7 @@ index 5a331aa..74a1832 100644
 \ No newline at end of file
 +};
 diff --git a/src/render/rt64_framebuffer_renderer.cpp b/src/render/rt64_framebuffer_renderer.cpp
-index 133c039..5be3bc7 100644
+index 133c039..1c27cad 100644
 --- a/src/render/rt64_framebuffer_renderer.cpp
 +++ b/src/render/rt64_framebuffer_renderer.cpp
 @@ -15,6 +15,8 @@
@@ -537,31 +537,32 @@ index 133c039..5be3bc7 100644
              }
          }
      }
-@@ -1447,6 +1462,23 @@ namespace RT64 {
+@@ -1447,6 +1462,24 @@ namespace RT64 {
          const interop::float2 halfPixelOffset = { 1.0f / framebuffer.viewport.width, -1.0f / framebuffer.viewport.height };
          const float middleViewport = (wideWidth / 2.0f) - (originalWidth / 2.0f);
          const float extOriginPercentage = p.extAspectPercentage;
 +#ifdef WETRIX_RECOMP
-+        // CPU's three glyphs share an explicit producer span, but each glyph
-+        // is a separate texture rectangle. Measure that span once so the whole
-+        // label, rather than each character, centres in the right-hand view.
-+        float wetrixCpuLabelLeft = 10000.0f;
-+        float wetrixCpuLabelRight = -10000.0f;
-+        for (uint32_t cpuPr = 0; cpuPr < fbPair.projectionCount; ++cpuPr) {
-+            const Projection &cpuProjection = fbPair.projections[cpuPr];
-+            if (cpuProjection.type != Projection::Type::Rectangle) continue;
-+            for (uint32_t cpuD = 0; cpuD < cpuProjection.gameCallCount; ++cpuD) {
-+                const auto &cpuCall = cpuProjection.gameCalls[cpuD].callDesc;
-+                if (cpuCall.wetrixLayer != 10 || !cpuCall.wetrixMultiplayer) continue;
-+                wetrixCpuLabelLeft = std::min(wetrixCpuLabelLeft, float(cpuCall.rect.left(true)));
-+                wetrixCpuLabelRight = std::max(wetrixCpuLabelRight, float(cpuCall.rect.right(true)));
++        // Measure complete tagged HUD producers, keeping each label and
++        // beaker's tiles together. Preview arrows share the beaker's anchor.
++        float wetrixHudLeft[19], wetrixHudRight[19];
++        std::fill_n(wetrixHudLeft, 19, 10000.0f);
++        std::fill_n(wetrixHudRight, 19, -10000.0f);
++        for (uint32_t pr = 0; pr < fbPair.projectionCount; ++pr) {
++            const Projection &hudProjection = fbPair.projections[pr];
++            if (hudProjection.type != Projection::Type::Rectangle) continue;
++            for (uint32_t d = 0; d < hudProjection.gameCallCount; ++d) {
++                const auto &hudCall = hudProjection.gameCalls[d].callDesc;
++                const unsigned tag = hudCall.wetrixLayer;
++                if (tag >= 19 || !hudCall.wetrixMultiplayer) continue;
++                wetrixHudLeft[tag] = std::min(wetrixHudLeft[tag], float(hudCall.rect.left(true)));
++                wetrixHudRight[tag] = std::max(wetrixHudRight[tag], float(hudCall.rect.right(true)));
 +            }
 +        }
 +#endif
          uint32_t vertexTestZFaceIndicesStart = 0;
          int32_t vertexTestZCallIndex = -1;
          RenderViewport viewportClip;
-@@ -1506,8 +1538,95 @@ namespace RT64 {
+@@ -1506,8 +1539,105 @@ namespace RT64 {
                  viewportClip = convertViewportRect(viewport.rect(viewportClipRatios), p.resolutionScale, p.fbWidth, projInvRatioScale, extOriginPercentage, 0.0f, viewportOrigin, viewportOrigin);
              }
  
@@ -581,9 +582,10 @@ index 133c039..5be3bc7 100644
 +                // meters in split-screen. Layer6 also contains attack bars,
 +                // so neither screen position nor that shared tag identifies
 +                // a meter safely.
-+                const bool splitOuterLeftHud=call.callDesc.wetrixLayer==8;
-+                const bool splitOuterRightHud=call.callDesc.wetrixLayer==9;
-+                const bool splitCpuLabel=call.callDesc.wetrixLayer==10 && call.callDesc.wetrixMultiplayer;
++                const bool splitOuterLeftHud=call.callDesc.wetrixLayer==8 || call.callDesc.wetrixLayer==14;
++                const bool splitOuterRightHud=call.callDesc.wetrixLayer==9 || call.callDesc.wetrixLayer==15 ||
++                    call.callDesc.wetrixLayer==17 || call.callDesc.wetrixLayer==18 || call.callDesc.wetrixLayer==16;
++                const bool splitCpuLabel=(call.callDesc.wetrixLayer==10 || call.callDesc.wetrixLayer==13) && call.callDesc.wetrixMultiplayer;
 +                const bool wetrixAttractLeft=call.callDesc.wetrixLayer==12;
 +                const bool singlePlayerHud=!call.callDesc.wetrixMultiplayer && (leftHud || rightHud);
 +                const bool multiplayerOuterHud=call.callDesc.wetrixMultiplayer &&
@@ -599,19 +601,28 @@ index 133c039..5be3bc7 100644
 +                    // 4:3 canvas padding, including standalone press-start.
 +                    hudShift=-(wideWidth-originalWidth)*0.5f;
 +                }
-+                if (p.fbWidth==320 && call.callDesc.wetrixMultiplayer && splitOuterLeftHud &&
-+                    aspectRatioScale>1.001f) {
-+                    // 80046D3C sets P1 x=33; 80046F30 subtracts one, then
-+                    // 80046F34/80047044 add native +/-quake jitter. Translate
-+                    // its fixed 32px baseline to 8px, retaining that animation.
-+                    // P2's existing divider inset remains unchanged.
-+                    hudShift=(8.0f-32.0f)*p.resolutionScale.y-(wideWidth-originalWidth)*0.5f;
-+                }
-+                if (p.fbWidth==320 && splitCpuLabel && aspectRatioScale>1.001f &&
-+                    wetrixCpuLabelRight > wetrixCpuLabelLeft) {
-+                    const float nativeLabelCentre=(wetrixCpuLabelLeft+wetrixCpuLabelRight)*0.5f;
-+                    hudShift=wideWidth*0.75f-((wideWidth-originalWidth)*0.5f+
-+                        nativeLabelCentre*p.resolutionScale.y);
++                if (p.fbWidth==320 && call.callDesc.wetrixMultiplayer && aspectRatioScale>1.001f) {
++                    const unsigned tag=call.callDesc.wetrixLayer;
++                    const float padding=(wideWidth-originalWidth)*0.5f;
++                    if (splitOuterLeftHud && wetrixHudRight[tag]>wetrixHudLeft[tag]) {
++                        const float viewLeft=tag==8 ? 0.0f : wideWidth*0.5f;
++                        hudShift=viewLeft+8.0f*p.resolutionScale.y-
++                            (padding+wetrixHudLeft[tag]*p.resolutionScale.y);
++                    }
++                    else if (tag==9 || tag==15 || tag==17 || tag==18) {
++                        const bool first=tag==15 || tag==17;
++                        const unsigned beakerTag=first ? 17 : 18;
++                        if (wetrixHudRight[beakerTag]>wetrixHudLeft[beakerTag]) {
++                            const float viewRight=first ? wideWidth*0.5f : wideWidth;
++                            hudShift=viewRight-8.0f*p.resolutionScale.y-
++                                (padding+wetrixHudRight[beakerTag]*p.resolutionScale.y);
++                        }
++                    }
++                    else if (splitCpuLabel && wetrixHudRight[tag]>wetrixHudLeft[tag]) {
++                        const float centre=(wetrixHudLeft[tag]+wetrixHudRight[tag])*0.5f;
++                        hudShift=wideWidth*(tag==13 ? 0.25f : 0.75f)-
++                            (padding+centre*p.resolutionScale.y);
++                    }
 +                }
 +                // Native split views occupy x=16..159 and 161..304. Centre
 +                // each in its own window half, preserving the scale of objects.
@@ -657,7 +668,7 @@ index 133c039..5be3bc7 100644
                  renderIndices.instanceIndex = call.callDesc.callIndex;
                  renderIndices.faceIndicesStart = call.meshDesc.faceIndicesStart;
                  renderIndices.rdpTileIndex = call.callDesc.tileIndex;
-@@ -1548,6 +1667,14 @@ namespace RT64 {
+@@ -1548,6 +1678,14 @@ namespace RT64 {
                      }
  
                      clearRect.rect = convertFixedRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
@@ -672,7 +683,7 @@ index 133c039..5be3bc7 100644
                  }
                  else if (call.callDesc.extendedType != DrawExtendedType::None) {
                      switch (call.callDesc.extendedType) {
-@@ -1631,6 +1758,35 @@ namespace RT64 {
+@@ -1631,6 +1769,35 @@ namespace RT64 {
                              instanceDrawCall.type = InstanceDrawCall::Type::IndexedTriangles;
                              triangles.indexStart = triangles.vertexTestZ ? vertexTestZFaceIndicesStart : call.meshDesc.faceIndicesStart;
                              invRatioScale = projInvRatioScale;
@@ -708,7 +719,7 @@ index 133c039..5be3bc7 100644
                              break;
                          }
                          case Projection::Type::Rectangle: {
-@@ -1653,6 +1809,39 @@ namespace RT64 {
+@@ -1653,6 +1820,39 @@ namespace RT64 {
                              }
  
                              RenderViewport viewportRect = convertViewportRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
@@ -748,7 +759,7 @@ index 133c039..5be3bc7 100644
                              triangles.screenScale = { viewportRect.width / framebuffer.viewport.width, viewportRect.height / framebuffer.viewport.height };
                              triangles.screenOffset.x = halfPixelOffset.x + ((viewportRect.x + viewportRect.width / 2.0f) - halfViewportSize.x) / halfViewportSize.x;
                              triangles.screenOffset.y = halfPixelOffset.y + (halfViewportSize.y - (viewportRect.y + viewportRect.height / 2.0f)) / halfViewportSize.y;
-@@ -1694,6 +1883,24 @@ namespace RT64 {
+@@ -1694,6 +1894,24 @@ namespace RT64 {
                          if (usesViewport) {
                              triangles.scissor = viewportScissorIntersection(viewportClip, triangles.scissor);
                          }
@@ -773,7 +784,7 @@ index 133c039..5be3bc7 100644
                          
                          if (triangles.vertexTestZ && usesViewport) {
                              instanceDrawCallVector[vertexTestZCallIndex].vertexTestZ.indexCount += call.callDesc.triangleCount * 3;
-@@ -1929,4 +2136,4 @@ namespace RT64 {
+@@ -1929,4 +2147,4 @@ namespace RT64 {
          unsigned int im3dVertexCount;
      };
  };

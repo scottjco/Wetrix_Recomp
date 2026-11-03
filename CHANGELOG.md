@@ -11,6 +11,8 @@ First public preview of Wetrix Recompiled.
 - Windowed launch, automatic starting monitor and in-game settings without a launcher screen.
 - Direct Windows executable launch without a console window; automatic ROM picker/import when the ROM is missing.
 - Embedded desktop icon converted from the reviewed HD Wetrix logo.
+- Practice labels centred per view at ultrawide ratios; both players' meters and previews aligned to their own view edges.
+- Optional HD pack adds all ten red digital counter digits.
 - Rainbow animation timing correction for Hybrid mode and missing PLAY corner texture replacement.
 
 This is an early preview. Platform build success is distinct from gameplay testing.
