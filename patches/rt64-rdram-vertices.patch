@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 55b5d67..589ecf2 100644
+index 55b5d67..209006f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -22,16 +22,16 @@ function(preprocess INFILE OUTFILE OPTIONS)
@@ -7,18 +7,18 @@ index 55b5d67..589ecf2 100644
              add_custom_command(OUTPUT ${OUTFILE}
                  COMMAND clang -x c -E -P ${INFILE} -o ${OUTFILE} ${OPTIONS}
 -                DEPENDS ${INFILE})
-+                DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++                DEPENDS ${INFILE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
          else()
              add_custom_command(OUTPUT ${OUTFILE}
                  COMMAND ${CMAKE_CXX_COMPILER} /Zs /EP ${INFILE} ${OPTIONS} > ${OUTFILE}
 -                DEPENDS ${INFILE})
-+                DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++                DEPENDS ${INFILE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
          endif()
      else()
          add_custom_command(OUTPUT ${OUTFILE}
              COMMAND ${CMAKE_CXX_COMPILER} -x c -E -P ${INFILE} -o ${OUTFILE} ${OPTIONS}
 -            DEPENDS ${INFILE})
-+            DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++            DEPENDS ${INFILE} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
      endif()
  endfunction()
  
@@ -27,7 +27,7 @@ index 55b5d67..589ecf2 100644
      add_custom_command(OUTPUT ${OUTNAME}.spv
          COMMAND ${DXC} ${DXC_SPV_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.spv
 -        DEPENDS ${FILENAME})
-+        DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++        DEPENDS ${FILENAME} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
      add_custom_command(OUTPUT ${OUTNAME}.spirv.c
          COMMAND file_to_c ${OUTNAME}.spv ${TARGET_NAME}BlobSPIRV ${OUTNAME}.spirv.c ${OUTNAME}.spirv.h
          DEPENDS ${OUTNAME}.spv file_to_c
@@ -36,7 +36,7 @@ index 55b5d67..589ecf2 100644
      add_custom_command(OUTPUT ${OUTNAME}.dxil
          COMMAND ${DXC} ${DXC_DXIL_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.dxil
 -        DEPENDS ${FILENAME})
-+        DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++        DEPENDS ${FILENAME} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
      add_custom_command(OUTPUT ${OUTNAME}.dxil.c
          COMMAND file_to_c ${OUTNAME}.dxil ${TARGET_NAME}BlobDXIL ${OUTNAME}.dxil.c ${OUTNAME}.dxil.h
          DEPENDS ${OUTNAME}.dxil file_to_c
@@ -45,7 +45,7 @@ index 55b5d67..589ecf2 100644
      add_custom_command(OUTPUT ${OUTNAME}.spv
              COMMAND ${DXC} ${DXC_SPV_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.spv
 -            DEPENDS ${FILENAME})
-+            DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
++            DEPENDS ${FILENAME} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/shared/rt64_rdp_params.h)
      add_custom_command(OUTPUT ${OUTNAME}.metal
              COMMAND spirv_cross_msl ${OUTNAME}.spv ${OUTNAME}.metal
              DEPENDS ${OUTNAME}.spv spirv_cross_msl)
