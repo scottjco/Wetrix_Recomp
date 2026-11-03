@@ -1,6 +1,6 @@
 # Platform builds
 
-Version 0.1.1 has build targets for Windows x64, Linux x64, macOS Apple Silicon and macOS Intel. Windows is the locally playtested platform. Version 0.1.0 passed native compilation on all four platforms, the Pak persistence/controller-protocol test and packaging in [the release build run](https://github.com/scottjco/Wetrix_Recomp/actions/runs/41551884023). Compilation alone does not establish gameplay parity.
+Version 0.1.1 provides Windows x64, Linux x64, macOS Apple Silicon and macOS Intel downloads. All four passed native compilation, the Pak persistence/controller-protocol test and packaging in [the 0.1.1 release build run](https://github.com/scottjco/Wetrix_Recomp/actions/runs/41623849927). The resulting archives were checked for bundled HD texture completeness, license notices, checksums and ROM/save exclusion. Windows is the locally playtested platform; compilation alone does not establish gameplay parity.
 
 ## ROM-free release builds
 

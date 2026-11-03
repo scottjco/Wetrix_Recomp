@@ -1,0 +1,37 @@
+{
+  "version": "0.1.1",
+  "source_commit": "6b496f8",
+  "build_run": "https://github.com/scottjco/Wetrix_Recomp/actions/runs/41623849927",
+  "native_build_and_pak_tests": "passed on all four runners",
+  "archive_checks": "all texture references present; licenses and artwork notice included; no ROM, saves, personal settings, temporary screenshot automation or command scripts",
+  "artifacts": [
+    {
+      "name": "WetrixRecompiled-0.1.1-Linux-x64.tar.gz",
+      "bytes": 39321911,
+      "files": 1532,
+      "hd_mappings": 1778,
+      "sha256": "1beaaa4ae23699662fa590c7c3e1260a39d6093cef5775d34e6d013d207be936"
+    },
+    {
+      "name": "WetrixRecompiled-0.1.1-macOS-arm64.zip",
+      "bytes": 40257002,
+      "files": 1536,
+      "hd_mappings": 1778,
+      "sha256": "30124a9a9a2d32644f901e0c4ec966a41aa1789ce55cc401ab2163fd29c59fea"
+    },
+    {
+      "name": "WetrixRecompiled-0.1.1-macOS-x64.zip",
+      "bytes": 40775034,
+      "files": 1535,
+      "hd_mappings": 1778,
+      "sha256": "3aca2d862e3c1ba641acac38c9fb314161b1d8eae84a111a4b42a6d486eb15e0"
+    },
+    {
+      "name": "WetrixRecompiled-0.1.1-Windows-x64.zip",
+      "bytes": 49717710,
+      "files": 1538,
+      "hd_mappings": 1778,
+      "sha256": "b4973b2babe77fd47a2b79f3ab2c9bd9605c30985bdf3678f02e0d9241483910"
+    }
+  ]
+}
