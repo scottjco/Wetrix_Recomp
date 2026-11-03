@@ -4,6 +4,15 @@ A native PC recompilation of Nintendo 64 Wetrix, built with N64: Recompiled, RT6
 
 This is an early release. Windows has received local builds and human playtesting. Successful compilation does not establish that every game mode, controller or platform works correctly.
 
+## Screenshots
+
+Actual Windows captures of the Classic title menu. The game animates between captures; these are not identical frames. [Capture details](docs/screenshots/CAPTURE-NOTES.txt).
+
+| | Original 4:3 | Expand widescreen |
+| --- | --- | --- |
+| Original artwork | ![Original artwork in 4:3](docs/screenshots/title-native-original.png) | ![Original artwork in Expand](docs/screenshots/title-native-expand.png) |
+| Optional HD artwork | ![HD artwork in 4:3](docs/screenshots/title-hd-original.png) | ![HD artwork in Expand](docs/screenshots/title-hd-expand.png) |
+
 ## Getting started
 
 Extract the application into a writable folder and follow the launcher instructions in your archive. The local Windows launcher is `Run Wetrix.cmd`, using `Assets/data.z64`. Press **Escape** for settings and **Alt+Enter** to switch fullscreen/windowed.

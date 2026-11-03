@@ -1,0 +1,19 @@
+Wetrix Recompiled 0.1.0 comparison captures
+
+Captured from the running Windows build in its windowed mode using the supported
+Wetrix ROM. The PNGs are direct window captures, including the window title.
+No game artwork was painted into these screenshots and no image upscaling was
+applied to them. Window capture dimensions are 1442 x 810 pixels.
+
+title-native-original.png: HD Textures Off, Aspect Ratio 4:3.
+title-native-expand.png:   HD Textures Off, Aspect Ratio Expand.
+title-hd-original.png:     HD Textures On, Aspect Ratio 4:3.
+title-hd-expand.png:       HD Textures On, Aspect Ratio Expand.
+
+All four show the Classic menu, with Hybrid FPS Mode and Display frame-rate
+target. They were captured separately. The platter, reflections, rings, logo,
+and native color transitions animate, so their phases differ between images.
+The optional HD setting also restores the original platter geometry when Off.
+
+Screenshot capture settings and keyboard device selection were temporary;
+personal settings were backed up for restoration and are not distributed.
