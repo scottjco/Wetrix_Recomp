@@ -12,7 +12,8 @@ pack = root / 'Textures/hd-sprites'
 database = json.loads((pack / 'rt64.json').read_text())
 readme = '''Wetrix N64 Recomp - optional HD Textures pack
 
-Install: extract this ZIP into C:\\recomp\\wetrix_n64 (beside Run Wetrix.cmd).
+Install: extract this ZIP into your extracted application folder, beside
+the WetrixRuntime executable and Run Wetrix launcher (any platform).
 The resulting manifest must be Textures/hd-sprites/rt64.json.
 Restart the game after adding or removing the pack.
 
