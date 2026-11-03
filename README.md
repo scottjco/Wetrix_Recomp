@@ -21,7 +21,7 @@ Classic, Challenge and Practice, with HD Textures and Expand enabled. Each board
 | --- | --- | --- |
 | [![Classic gameplay](docs/screenshots/classic-hd-expand.png)](docs/screenshots/classic-hd-expand.png) | [![Challenge gameplay](docs/screenshots/challenge-hd-expand.png)](docs/screenshots/challenge-hd-expand.png) | [![Practice gameplay](docs/screenshots/practice-hd-expand.png)](docs/screenshots/practice-hd-expand.png) |
 
-![Redacted Wetrix illustration](docs/screenshots/redacted.png)
+<img src="docs/screenshots/redacted.png" width="30%" alt="Deliberately fake SSSV screenshot in a Banjo-Kazooie-inspired level">
 
 *How did that one get in here? Pay no attention.*
 
