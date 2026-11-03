@@ -505,7 +505,7 @@ index 5a331aa..74a1832 100644
 \ No newline at end of file
 +};
 diff --git a/src/render/rt64_framebuffer_renderer.cpp b/src/render/rt64_framebuffer_renderer.cpp
-index 133c039..1c27cad 100644
+index 133c039..208194e 100644
 --- a/src/render/rt64_framebuffer_renderer.cpp
 +++ b/src/render/rt64_framebuffer_renderer.cpp
 @@ -15,6 +15,8 @@
@@ -562,7 +562,7 @@ index 133c039..1c27cad 100644
          uint32_t vertexTestZFaceIndicesStart = 0;
          int32_t vertexTestZCallIndex = -1;
          RenderViewport viewportClip;
-@@ -1506,8 +1539,105 @@ namespace RT64 {
+@@ -1506,8 +1539,111 @@ namespace RT64 {
                  viewportClip = convertViewportRect(viewport.rect(viewportClipRatios), p.resolutionScale, p.fbWidth, projInvRatioScale, extOriginPercentage, 0.0f, viewportOrigin, viewportOrigin);
              }
  
@@ -618,6 +618,12 @@ index 133c039..1c27cad 100644
 +                                (padding+wetrixHudRight[beakerTag]*p.resolutionScale.y);
 +                        }
 +                    }
++                    else if (tag==16 && wetrixHudRight[tag]>wetrixHudLeft[tag]) {
++                        // Keep the full CPU counter (border, fill and digits)
++                        // at the same right-edge inset as its beaker.
++                        hudShift=wideWidth-8.0f*p.resolutionScale.y-
++                            (padding+wetrixHudRight[tag]*p.resolutionScale.y);
++                    }
 +                    else if (splitCpuLabel && wetrixHudRight[tag]>wetrixHudLeft[tag]) {
 +                        const float centre=(wetrixHudLeft[tag]+wetrixHudRight[tag])*0.5f;
 +                        hudShift=wideWidth*(tag==13 ? 0.25f : 0.75f)-
@@ -668,7 +674,7 @@ index 133c039..1c27cad 100644
                  renderIndices.instanceIndex = call.callDesc.callIndex;
                  renderIndices.faceIndicesStart = call.meshDesc.faceIndicesStart;
                  renderIndices.rdpTileIndex = call.callDesc.tileIndex;
-@@ -1548,6 +1678,14 @@ namespace RT64 {
+@@ -1548,6 +1684,14 @@ namespace RT64 {
                      }
  
                      clearRect.rect = convertFixedRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
@@ -683,7 +689,7 @@ index 133c039..1c27cad 100644
                  }
                  else if (call.callDesc.extendedType != DrawExtendedType::None) {
                      switch (call.callDesc.extendedType) {
-@@ -1631,6 +1769,35 @@ namespace RT64 {
+@@ -1631,6 +1775,35 @@ namespace RT64 {
                              instanceDrawCall.type = InstanceDrawCall::Type::IndexedTriangles;
                              triangles.indexStart = triangles.vertexTestZ ? vertexTestZFaceIndicesStart : call.meshDesc.faceIndicesStart;
                              invRatioScale = projInvRatioScale;
@@ -719,7 +725,7 @@ index 133c039..1c27cad 100644
                              break;
                          }
                          case Projection::Type::Rectangle: {
-@@ -1653,6 +1820,39 @@ namespace RT64 {
+@@ -1653,6 +1826,39 @@ namespace RT64 {
                              }
  
                              RenderViewport viewportRect = convertViewportRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
@@ -759,7 +765,7 @@ index 133c039..1c27cad 100644
                              triangles.screenScale = { viewportRect.width / framebuffer.viewport.width, viewportRect.height / framebuffer.viewport.height };
                              triangles.screenOffset.x = halfPixelOffset.x + ((viewportRect.x + viewportRect.width / 2.0f) - halfViewportSize.x) / halfViewportSize.x;
                              triangles.screenOffset.y = halfPixelOffset.y + (halfViewportSize.y - (viewportRect.y + viewportRect.height / 2.0f)) / halfViewportSize.y;
-@@ -1694,6 +1894,24 @@ namespace RT64 {
+@@ -1694,6 +1900,24 @@ namespace RT64 {
                          if (usesViewport) {
                              triangles.scissor = viewportScissorIntersection(viewportClip, triangles.scissor);
                          }
@@ -784,7 +790,7 @@ index 133c039..1c27cad 100644
                          
                          if (triangles.vertexTestZ && usesViewport) {
                              instanceDrawCallVector[vertexTestZCallIndex].vertexTestZ.indexCount += call.callDesc.triangleCount * 3;
-@@ -1929,4 +2147,4 @@ namespace RT64 {
+@@ -1929,4 +2153,4 @@ namespace RT64 {
          unsigned int im3dVertexCount;
      };
  };
