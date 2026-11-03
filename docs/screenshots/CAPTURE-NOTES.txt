@@ -21,13 +21,22 @@ personal settings were backed up for restoration and are not distributed.
 Gameplay captures added 2026-11-03:
 classic-hd-expand.png: native Classic mode 1.
 challenge-hd-expand.png: native Challenge mode 64 (first challenge).
-practice-hd-expand.png: native Practice mode 128 (first practice board).
+practice-hd-expand.png: native Practice mode 128 (Raised Land B).
 
-HD Textures On, Aspect Ratio Expand, Hybrid mode, 60 FPS target. A local-only
-capture build invokes each original menu start callback, steers/rotates and
-holds native drop through eight piece placements, then stops simulation
-updates while rendering remains active. This prevents game over during the
-capture. No terrain, score, water or artwork was composited into the images.
-Capture hooks and temporary keyboard/device preferences are not part of the
-published executable or committed game source. Personal saves/settings were
-not used; the capture build ran from a separate working directory.
+HD Textures On, Aspect Ratio Expand, Original FPS mode (30 FPS). A local-only
+capture build invokes each original menu callback, rotates and holds native
+drop until water is present, allows one second of flow, then stops simulation.
+The spill container is kept empty at each native write, without clearing the
+water on the board. No water is painted into the gameplay screenshots. Original FPS mode avoids retaining interpolation history
+when freezing a still frame. The rejected duplicate-arrow Practice capture
+was withdrawn and is not used in the gallery.
+
+Images are direct window captures exported as PNG, without painting terrain,
+water, scores or artwork into the image. Capture hooks and temporary device
+preferences are not part of the release executable or committed game source.
+The capture build uses a separate working folder and save, preserving personal
+saves and settings. No Press Start or high-score screen is used in this gallery.
+
+redacted.png is a separate AI-generated joke illustration made with the built-in
+image generation tool. It is not a gameplay capture. The Gemini mark is part of
+the requested joke and does not attribute the image generation to Gemini.
