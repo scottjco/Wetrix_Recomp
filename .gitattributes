@@ -1,0 +1,17 @@
+* text=auto
+* text eol=lf
+release-notices/** -text -whitespace
+Assets/menu/icons/** -text -whitespace
+Assets/menu/*OFL.txt -text -whitespace
+Assets/menu/promptfont/** -text -whitespace
+LICENSE -text -whitespace
+*.sh text eol=lf
+*.command text eol=lf
+*.patch text eol=lf
+*.patch -whitespace
+*.toml text eol=lf
+*.yml text eol=lf
+*.png binary
+*.ttf binary
+*.otf binary
+*.tar.gz binary

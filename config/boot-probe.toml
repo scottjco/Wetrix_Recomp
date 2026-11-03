@@ -1,0 +1,12 @@
+# Deliberately bounded diagnostic: native startup and thread construction.
+[input]
+entrypoint = 0x80000400
+rom_file_path = "../Assets/data.z64"
+symbols_file_path = "../WetrixRecompSyms/boot-probe.syms.toml"
+output_func_path = "../build/generated-boot"
+recomp_include = '#include "boot_probe.h"'
+
+[patches]
+# Explicit diagnostic boundaries, implemented by src/boot_probe.c.
+# No hardware initialization or scheduler is simulated silently.
+ignored = ["probe_osInitialize", "probe_osStartThread"]

@@ -1,0 +1,16 @@
+{
+  "version": 5,
+  "configurePresets": [{
+    "name": "windows",
+    "displayName": "Windows x64 tools (Visual Studio 2026)",
+    "generator": "Visual Studio 18 2026",
+    "architecture": "x64",
+    "binaryDir": "${sourceDir}/build/windows"
+  }],
+  "buildPresets": [
+    {"name": "boot-probe", "configurePreset": "windows", "configuration": "Release", "targets": ["run-boot-probe"]},
+    {"name": "tools", "configurePreset": "windows", "configuration": "Release", "targets": ["wetrix-tools"]},
+    {"name": "verify-rom", "configurePreset": "windows", "configuration": "Release", "targets": ["verify-rom"]},
+    {"name": "recompile", "configurePreset": "windows", "configuration": "Release", "targets": ["recompile"]}
+  ]
+}

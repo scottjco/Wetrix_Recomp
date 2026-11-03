@@ -1,0 +1,76 @@
+name: Release platform builds
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    name: ${{ matrix.platform }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: windows-latest, platform: Windows, arch: x64}
+          - {runner: ubuntu-24.04, platform: Linux, arch: x64}
+          - {runner: macos-15, platform: macOS, arch: arm64}
+          - {runner: macos-15-intel, platform: macOS, arch: x64}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore verified translated source (no ROM)
+        run: python tools/ci_release.py prepare
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: amd64
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build clang lld libsdl2-dev libgtk-3-dev libx11-dev libxrandr-dev libfreetype-dev libvulkan-dev
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install ninja sdl2 freetype llvm lld pkgconf zlib
+          echo "CMAKE_PREFIX_PATH=$(brew --prefix sdl2):$(brew --prefix freetype):$(brew --prefix zlib)" >> "$GITHUB_ENV"
+          find lib/rt64/src/contrib/dxc lib/rt64/src/contrib/spirv-cross -type f \( -name dxc-macos -o -name spirv-cross \) -exec chmod +x {} +
+      - name: Configure
+        run: |
+          args=(-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++)
+          if [ "$RUNNER_OS" = Windows ]; then
+            args=(-DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl '-DCMAKE_CXX_FLAGS=-Xclang -fexceptions -Xclang -fcxx-exceptions')
+          fi
+          if [ "$RUNNER_OS" = macOS ]; then
+            args+=(-DCMAKE_OSX_DEPLOYMENT_TARGET=15.0)
+            if [ '${{ matrix.arch }}' = arm64 ]; then args+=(-DCMAKE_OSX_ARCHITECTURES=arm64); else args+=(-DCMAKE_OSX_ARCHITECTURES=x86_64); fi
+          fi
+          cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DWETRIX_USE_PREGENERATED=ON "${args[@]}"
+      - name: Build runtime and portable Pak test
+        run: cmake --build build-release --target WetrixRuntime WetrixPakTest --parallel 3
+      - name: Test Pak persistence and controller protocol
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then build-release/WetrixPakTest.exe; else build-release/WetrixPakTest; fi
+      - name: Package without ROM, texture packs or saves
+        run: python tools/ci_release.py package --platform '${{ matrix.platform }}' --arch '${{ matrix.arch }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WetrixRecompiled-0.1.0-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*.sha256
+          if-no-files-found: error
+          retention-days: 14

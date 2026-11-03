@@ -1,0 +1,6 @@
+# Header-derived entry address. Section/function mappings still require analysis.
+[input]
+entrypoint = 0x80000400
+rom_file_path = "Assets/data.z64"
+symbols_file_path = "WetrixRecompSyms/wetrix.us.syms.toml"
+output_func_path = "RecompiledFuncs"

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- SPDX-License-Identifier: GPL-3.0-only; newly authored Wetrix N64 Recomp UI geometry. -->
+  <g fill="white" fill-opacity="0.2" stroke="white" stroke-opacity="0.8" stroke-width="3" stroke-linejoin="round">
+    <path d="M30 5 53 44H7Z"/>
+  </g>
+</svg>

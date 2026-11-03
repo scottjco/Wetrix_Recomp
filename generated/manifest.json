@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "archive_sha256": "2b9a55affc20f631d5d6022f0edf24b8d6dbff5e377e296a7dfac34cec61b6fa",
+  "files": {
+    "build/generated-runtime/funcs_0.c": "2cb2c29c7a2c84c243cd5aae4329312e49cd0a87e5c519e798856cb2600356b8",
+    "build/generated-runtime/funcs.h": "fb2d356cfc8e4a684523526f7ea5afa4fceffebebfa24e0f315ea7e19ddd91fd",
+    "build/generated-runtime/unimplemented.cpp": "d10be65f41bd92eba73c7eb6abb948559677621d873879a23313dc2d98b08d8b",
+    "build/generated-runtime/dispatch.inl": "4333b55fe4a88e7d30ce6c0cb2d6c7a5cc1d1e90262b22df00f083487d98b79c",
+    "build/generated-runtime/runtime_services.h": "5688074584e2aabfa5183bc809d047845f8da00dbff43551e8f92142f9ddee29",
+    "build/generated-runtime/aspMain.cpp": "c844ee17632b30a06ef7f85485923c844e65e536ef907da34004eb74cfa78252"
+  },
+  "inputs": {
+    "config/runtime.toml": "85fdd8818268c6aa4a525f811f0e95b27bbabc58b2557f62efa6499ba3bc392c",
+    "config/audio.toml": "f76ed626722c51ea28219742942507ffee5587d3a27349e0064711a0f7d3a84b",
+    "WetrixRecompSyms/runtime.syms.toml": "fa0d629ff51d1d36981030b1e429b66273bda140d8062bf8fb8828502d322ad8",
+    "tools/finalize_runtime.py": "1518b03aeeb27c0ef0efb73cddc4f61604e8ca248fc24d9403f9cc277257c7ea"
+  }
+}

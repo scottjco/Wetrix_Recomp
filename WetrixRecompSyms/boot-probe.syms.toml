@@ -1,0 +1,16 @@
+# Manually inspected ROM ranges. The main starts at the entrypoint's JAL target,
+# not the earlier stale padding instructions suggested by automatic analysis.
+[[section]]
+name = ".main"
+rom = 0x1000
+vram = 0x80000400
+size = 0x7BF80
+functions = [
+  {name = "recomp_entrypoint", vram = 0x80000400, size = 0x3C},
+  {name = "wetrix_main", vram = 0x80031DC0, size = 0xF4},
+  {name = "wetrix_create_thread", vram = 0x800503C0, size = 0x144},
+  {name = "wetrix_disable_interrupts", vram = 0x80051540, size = 0x20},
+  {name = "wetrix_restore_interrupts", vram = 0x80051560, size = 0x1C},
+  {name = "probe_osInitialize", vram = 0x80051240, size = 0x140},
+  {name = "probe_osStartThread", vram = 0x8005C100, size = 0x150},
+]

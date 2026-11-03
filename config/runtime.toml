@@ -1,0 +1,375 @@
+[input]
+entrypoint = 0x80000400
+rom_file_path = "../Assets/data.z64"
+symbols_file_path = "../WetrixRecompSyms/runtime.syms.toml"
+output_func_path = "../build/generated-runtime"
+recomp_include = '#include "runtime.h"'
+functions_per_output_file = 100000
+
+# Attract/demo overlay only: sprite21 plaque and its blinking press-start
+# message. The second branch displays press-start without the plaque.
+# Start before the blink branch so the plaque remains tagged on hidden-text
+# frames too. Do not tag the shared font or sprite renderers themselves.
+[[patches.hook]]
+func = "func_80022E08"
+before_vram = 0x800231B8
+text = "wetrix_background_marker(rdram, 12);"
+
+[[patches.hook]]
+func = "func_80022E08"
+before_vram = 0x80023244
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_80022E08"
+before_vram = 0x80023278
+text = "wetrix_background_marker(rdram, 12);"
+
+[[patches.hook]]
+func = "func_80022E08"
+before_vram = 0x80023298
+text = "wetrix_background_marker(rdram, 0);"
+
+# Refresh the native physical-port cache before its poll can early-out. This
+# permits live reattachment even when no controller ports were present.
+[[patches.hook]]
+func = "func_8001BB70"
+text = "wetrix_sync_controller_presence(rdram);"
+
+# Smooth only the two proven menu-platter rims. Reserve child geometry/lists
+# inside the existing native-owned bank allocation; leave original DMA size.
+[[patches.hook]]
+func = "func_80025700"
+before_vram = 0x80025AE8
+text = "wetrix_menu_mesh_begin_bank();"
+
+[[patches.hook]]
+func = "func_80039504"
+text = "wetrix_menu_mesh_allocate(rdram, ctx);"
+
+[[patches.hook]]
+func = "func_80039504"
+before_vram = 0x8003962C
+text = "wetrix_menu_mesh_allocation_result(rdram, ctx);"
+
+[[patches.hook]]
+func = "func_80025700"
+before_vram = 0x80025B08
+text = "wetrix_menu_mesh_bank_ready(rdram);"
+
+[[patches.hook]]
+func = "func_800268AC"
+text = "if (wetrix_draw_smooth_menu_mesh(rdram, ctx)) return;"
+
+# Scope the optional host ground material to native terrain rows only.
+[[patches.hook]]
+func = "func_800166BC"
+before_vram = 0x80016FFC
+text = "wetrix_background_marker(rdram, 7);"
+
+[[patches.hook]]
+func = "func_800166BC"
+before_vram = 0x800170D8
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_8004A190"
+text = "wetrix_capture_sprite(rdram, ctx);"
+
+# Let Start finish the copyright countdown through its normal cleanup path.
+[[patches.hook]]
+func = "func_800274A0"
+before_vram = 0x800274E8
+text = "if (wetrix_intro_skip_requested()) { ctx->r2 = 0; MEM_W(0, (int32_t)0x800699CC) = 0; }"
+
+# Start was historically also a boot-time service shortcut after the countdown.
+# A requested skip should proceed to the regular menu transition instead.
+[[patches.hook]]
+func = "func_800274A0"
+before_vram = 0x800276CC
+text = "if (wetrix_intro_skip_requested()) goto L_800277CC;"
+
+# Reverse rotation uses an unused logical input bit, including native edge
+# detection/history, for both players. Reverse Rotate is its own bindable action.
+[[patches.hook]]
+func = "func_800349CC"
+before_vram = 0x80034BF0
+text = "wetrix_prepare_rotation(rdram, ctx);"
+
+# Experimental 60 Hz responsive piece/control substeps (WETRIX_GAMEPLAY_60).
+[[patches.hook]]
+func = "func_80039FA8"
+text = "if (wetrix_control_frame(rdram, ctx)) return;"
+
+[[patches.hook]]
+func = "func_800349CC"
+before_vram = 0x80034A18
+text = "if (wetrix_control_extra()) ctx->r2 = ctx->r3;"
+[[patches.hook]]
+func = "func_800349CC"
+before_vram = 0x80034D38
+text = "if (wetrix_control_extra()) goto L_80034E5C;"
+[[patches.hook]]
+func = "func_800349CC"
+before_vram = 0x80034E5C
+text = "wetrix_piece_substep(rdram, 0); if (wetrix_control_extra() && MEM_W(0x13D8, MEM_W(0, (int32_t)0x800A2780)) < 16) goto L_80035024;"
+[[patches.hook]]
+func = "func_800349CC"
+before_vram = 0x80035024
+text = "wetrix_piece_substep(rdram, 1);"
+
+# Keep held-input repeat delays in their original time units.
+[[patches.hook]]
+func = "func_8003C940"
+before_vram = 0x8003CC68
+text = "if (wetrix_precision_active(rdram)) goto L_8003D1D8;"
+
+[[patches.hook]]
+func = "func_8003C940"
+before_vram = 0x8003CBD4
+text = "if (wetrix_control_extra()) ctx->r2 = SUB32(ctx->r2, 1);"
+[[patches.hook]]
+func = "func_8003C940"
+before_vram = 0x8003CC64
+text = "if (wetrix_control_extra()) ctx->r2 = ADD32(ctx->r2, 1);"
+
+[[patches.hook]]
+func = "func_8003C940"
+before_vram = 0x8003D1D8
+text = "if (wetrix_control_extra()) MEM_W(0, ctx->r10) &= ~(MEM_W(0, ctx->r23) & 0xF); wetrix_analog_input(rdram, ctx); if (MEM_HU(-2, ctx->r18) & 0x0040) MEM_W(0, ctx->r10) |= 0x80;"
+[[patches.hook]]
+func = "func_8003C940"
+before_vram = 0x8003D1D4
+text = "if (wetrix_control_extra()) ctx->r2 = ADD32(ctx->r2, 1);"
+
+# At match music selection only, route Multiplay (4) through Challenge (3).
+# This changes a temporary selector, never the actual game mode/player count.
+# The original player handles music enable/volume, looping and subsequent stops.
+[[patches.hook]]
+func = "func_80039FA8"
+before_vram = 0x8003A71C
+text = "if (ctx->r4 == 4) ctx->r4 = 3;"
+
+# These original audio-stop loops rely on interrupt-driven preemption.
+# Yield to the host scheduler so the audio thread can finish its work.
+[[patches.hook]]
+func = "func_8002525C"
+before_vram = 0x8002528C
+text = "wetrix_yield(rdram);"
+
+[[patches.hook]]
+func = "func_80032828"
+text = "wetrix_timing_audit(rdram, 0);"
+[[patches.hook]]
+func = "func_8003C940"
+text = "wetrix_timing_audit(rdram, 1);"
+[[patches.hook]]
+func = "func_80033900"
+text = "wetrix_timing_audit(rdram, 2);"
+[[patches.hook]]
+func = "func_800349CC"
+text = "wetrix_timing_audit(rdram, 3);"
+[[patches.hook]]
+func = "func_800252C8"
+before_vram = 0x800252DC
+text = "wetrix_yield(rdram);"
+
+# Tag the original background pass, including each practice background variant.
+[[patches.hook]]
+func = "func_8001E6F8"
+text = "wetrix_background_marker(rdram, 1);"
+[[patches.hook]]
+func = "func_8001E6F8"
+before_vram = 0x8001E7A4
+text = "wetrix_background_marker(rdram, 0);"
+
+# Preserve complete circle rectangles before the original CPU-side left clip.
+[[patches.hook]]
+func = "func_800278A8"
+text = "wetrix_background_marker(rdram, 2);"
+[[patches.hook]]
+func = "func_800278A8"
+before_vram = 0x80027BB0
+text = "ctx->f0.fl += 256.0f;"
+[[patches.hook]]
+func = "func_800278A8"
+before_vram = 0x80027D30
+text = "wetrix_background_marker(rdram, 0);"
+
+# Native full-width solid/gradient panels. Preserve original RGBA and animation.
+[[patches.hook]]
+func = "func_8004ADD0"
+text = "wetrix_push_background_marker(rdram, ((int32_t)ctx->r4 <= 32 && (int32_t)ctx->r6 >= 608) ? (((int32_t)ctx->r5 <= 2 && (int32_t)ctx->r7 >= 478) ? 4 : 3) : 0);"
+[[patches.hook]]
+func = "func_8004ADD0"
+before_vram = 0x8004B140
+text = "wetrix_pop_background_marker(rdram);"
+
+# Native full-width solid/gradient panels. Preserve original RGBA and animation.
+[[patches.hook]]
+func = "func_8004B174"
+text = "wetrix_push_background_marker(rdram, ((int32_t)ctx->r4 <= 32 && (int32_t)ctx->r6 >= 608) ? (((int32_t)ctx->r5 <= 2 && (int32_t)ctx->r7 >= 478) ? 4 : 3) : 0);"
+[[patches.hook]]
+func = "func_8004B174"
+before_vram = 0x8004B520
+text = "wetrix_pop_background_marker(rdram);"
+
+
+
+
+
+
+
+
+
+[[patches.hook]]
+func = "func_80045CAC"
+text = "wetrix_background_marker(rdram, 5);"
+
+[[patches.hook]]
+func = "func_80045CAC"
+before_vram = 0x80045D90
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_80045FD4"
+text = "wetrix_background_marker(rdram, 6);"
+
+[[patches.hook]]
+func = "func_80045FD4"
+before_vram = 0x80046364
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_80046CCC"
+text = "wetrix_background_marker(rdram, 8);"
+
+[[patches.hook]]
+func = "func_80046CCC"
+before_vram = 0x80047120
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_80047128"
+text = "wetrix_background_marker(rdram, 9);"
+
+[[patches.hook]]
+func = "func_80047128"
+before_vram = 0x80047574
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_8004636C"
+text = "wetrix_background_marker(rdram, 9);"
+
+# Only the first span is the next-piece arrow/type preview. The second span
+# animates the bottom HUD and retains its original shared HUD tag.
+[[patches.hook]]
+func = "func_8004636C"
+before_vram = 0x80046888
+text = "wetrix_background_marker(rdram, 6);"
+
+[[patches.hook]]
+func = "func_8004636C"
+before_vram = 0x80046B64
+text = "wetrix_background_marker(rdram, 0);"
+
+# The square-grid preview follows the same beaker translation as the arrow.
+# 800482D4 is the grid-upload span inside this producer.
+[[patches.hook]]
+func = "func_80047E1C"
+text = "wetrix_background_marker(rdram, 9);"
+
+[[patches.hook]]
+func = "func_80047E1C"
+before_vram = 0x800486F4
+text = "wetrix_background_marker(rdram, 0);"
+
+# Lesson CPU counter and label are separate, exact call-site spans. Do not
+# move the lesson narration, P1 score, or any other shared font calls.
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x80024208
+text = "wetrix_background_marker(rdram, 11);"
+
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x80024258
+text = "wetrix_background_marker(rdram, 0);"
+
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x80024294
+text = "wetrix_background_marker(rdram, 10);"
+
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x800242B4
+text = "wetrix_background_marker(rdram, 0);"
+
+# The lesson's boxed digital counter is a different producer from the normal
+# text score above. s4 is the exact player-loop index: tag CPU only, including
+# border, black background, and all three digit sprites.
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x800243E4
+text = "wetrix_background_marker(rdram, (uint32_t)ctx->r20 == 1 ? 11 : 0);"
+
+[[patches.hook]]
+func = "func_80024120"
+before_vram = 0x80024498
+text = "wetrix_audit_cpu_counter((unsigned)ctx->r20); wetrix_background_marker(rdram, 0);"
+
+# Rainbow multiplier arc: only visual band reveal/phase/size advance at native
+# 30 Hz seconds. Hybrid draws at60 Hz, regardless of RT64 output target.
+# Keep per-band initial values, clipping, colors and gameplay+1368 untouched.
+[[patches.hook]]
+func = "func_800149B4"
+before_vram = 0x80014B08
+text = "if (wetrix_control_extra()) goto L_80014BB0;"
+
+[[patches.hook]]
+func = "func_800149B4"
+before_vram = 0x80014B4C
+text = "ctx->f0.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_800149B4"
+before_vram = 0x80014B60
+text = "ctx->f4.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_800149B4"
+before_vram = 0x80014B6C
+text = "ctx->f0.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014D20
+text = "ctx->f16.d *= wetrix_rainbow_visual_step(); ctx->f12.d *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014D98
+text = "ctx->f2.d *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014DA4
+text = "ctx->f2.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014E44
+text = "ctx->f4.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014F28
+text = "ctx->f0.fl *= wetrix_rainbow_visual_step();"
+
+[[patches.hook]]
+func = "func_80014BFC"
+before_vram = 0x80014F60
+text = "ctx->f2.d *= wetrix_rainbow_visual_step();"
+

@@ -1,0 +1,844 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 55b5d67..589ecf2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,16 +22,16 @@ function(preprocess INFILE OUTFILE OPTIONS)
+         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+             add_custom_command(OUTPUT ${OUTFILE}
+                 COMMAND clang -x c -E -P ${INFILE} -o ${OUTFILE} ${OPTIONS}
+-                DEPENDS ${INFILE})
++                DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+         else()
+             add_custom_command(OUTPUT ${OUTFILE}
+                 COMMAND ${CMAKE_CXX_COMPILER} /Zs /EP ${INFILE} ${OPTIONS} > ${OUTFILE}
+-                DEPENDS ${INFILE})
++                DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+         endif()
+     else()
+         add_custom_command(OUTPUT ${OUTFILE}
+             COMMAND ${CMAKE_CXX_COMPILER} -x c -E -P ${INFILE} -o ${OUTFILE} ${OPTIONS}
+-            DEPENDS ${INFILE})
++            DEPENDS ${INFILE} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+     endif()
+ endfunction()
+ 
+@@ -116,7 +116,7 @@ set (DXC_RT_OPTS "${DXC_COMMON_OPTS}" "-D" "RT_SHADER" "-T" "lib_6_3" "-fspv-tar
+ function(build_shader_spirv_impl TARGETOBJ FILENAME TARGET_NAME OUTNAME)
+     add_custom_command(OUTPUT ${OUTNAME}.spv
+         COMMAND ${DXC} ${DXC_SPV_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.spv
+-        DEPENDS ${FILENAME})
++        DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+     add_custom_command(OUTPUT ${OUTNAME}.spirv.c
+         COMMAND file_to_c ${OUTNAME}.spv ${TARGET_NAME}BlobSPIRV ${OUTNAME}.spirv.c ${OUTNAME}.spirv.h
+         DEPENDS ${OUTNAME}.spv file_to_c
+@@ -127,7 +127,7 @@ endfunction()
+ function(build_shader_dxil_impl TARGETOBJ FILENAME TARGET_NAME OUTNAME)
+     add_custom_command(OUTPUT ${OUTNAME}.dxil
+         COMMAND ${DXC} ${DXC_DXIL_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.dxil
+-        DEPENDS ${FILENAME})
++        DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+     add_custom_command(OUTPUT ${OUTNAME}.dxil.c
+         COMMAND file_to_c ${OUTNAME}.dxil ${TARGET_NAME}BlobDXIL ${OUTNAME}.dxil.c ${OUTNAME}.dxil.h
+         DEPENDS ${OUTNAME}.dxil file_to_c
+@@ -138,7 +138,7 @@ endfunction()
+ function(build_shader_msl_impl TARGETOBJ FILENAME TARGET_NAME OUTNAME)
+     add_custom_command(OUTPUT ${OUTNAME}.spv
+             COMMAND ${DXC} ${DXC_SPV_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.spv
+-            DEPENDS ${FILENAME})
++            DEPENDS ${FILENAME} ${PROJECT_SOURCE_DIR}/src/shared/rt64_rdp_params.h)
+     add_custom_command(OUTPUT ${OUTNAME}.metal
+             COMMAND spirv_cross_msl ${OUTNAME}.spv ${OUTNAME}.metal
+             DEPENDS ${OUTNAME}.spv spirv_cross_msl)
+diff --git a/src/common/rt64_user_configuration.h b/src/common/rt64_user_configuration.h
+index c313229..f8645ec 100644
+--- a/src/common/rt64_user_configuration.h
++++ b/src/common/rt64_user_configuration.h
+@@ -66,6 +66,7 @@ namespace RT64 {
+             Original,
+             Display,
+             Manual,
++            Unlimited,
+             OptionCount
+         };
+ 
+@@ -163,7 +164,8 @@ namespace RT64 {
+     NLOHMANN_JSON_SERIALIZE_ENUM(UserConfiguration::RefreshRate, {
+         { UserConfiguration::RefreshRate::Original, "Original" },
+         { UserConfiguration::RefreshRate::Display, "Display" },
+-        { UserConfiguration::RefreshRate::Manual, "Manual" }
++        { UserConfiguration::RefreshRate::Manual, "Manual" },
++        { UserConfiguration::RefreshRate::Unlimited, "Unlimited" }
+     });
+ 
+     NLOHMANN_JSON_SERIALIZE_ENUM(UserConfiguration::InternalColorFormat, {
+@@ -188,4 +190,4 @@ namespace RT64 {
+         static bool read(UserConfiguration &cfg, std::istream &stream);
+         static bool write(const UserConfiguration &cfg, std::ostream &stream);
+     };
+-};
+\ No newline at end of file
++};
+diff --git a/src/gbi/rt64_gbi_rdp.cpp b/src/gbi/rt64_gbi_rdp.cpp
+index 6255872..250c88a 100644
+--- a/src/gbi/rt64_gbi_rdp.cpp
++++ b/src/gbi/rt64_gbi_rdp.cpp
+@@ -11,7 +11,14 @@
+ namespace RT64 {
+     namespace GBI_RDP {
+         void noOp(State *state, DisplayList **dl) {
+-            // Do nothing.
++            #ifdef WETRIX_RECOMP
++            if ((*dl)->w0 == 0xC0575458U) {
++                state->flush();
++                state->drawCall.wetrixLayer = (*dl)->w1;
++                state->updateDrawStatusAttribute(DrawAttribute::Scissor);
++                state->updateDrawStatusAttribute(DrawAttribute::Texture);
++            }
++#endif
+         }
+ 
+         void setColorImage(State *state, DisplayList **dl) {
+diff --git a/src/hle/rt64_draw_call.h b/src/hle/rt64_draw_call.h
+index 681ad1a..a2fa4ff 100644
+--- a/src/hle/rt64_draw_call.h
++++ b/src/hle/rt64_draw_call.h
+@@ -93,6 +93,9 @@ namespace RT64 {
+         uint8_t rectAspect;
+         uint8_t scissorAspect;
+         uint8_t scissorMode;
++        bool wetrixGameplay = false;
++        bool wetrixMultiplayer = false;
++        uint32_t wetrixLayer = 0;
+         uint8_t textureOn;
+         uint8_t textureTile;
+         uint8_t textureLevels;
+@@ -159,4 +162,4 @@ namespace RT64 {
+             return (minTexcoord.x <= maxTexcoord.x) && (minTexcoord.y <= maxTexcoord.y);
+         }
+     };
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_game_frame.cpp b/src/hle/rt64_game_frame.cpp
+index 87392d0..253cdc7 100644
+--- a/src/hle/rt64_game_frame.cpp
++++ b/src/hle/rt64_game_frame.cpp
+@@ -5,6 +5,8 @@
+ #include "common/rt64_math.h"
+ 
+ #include "rt64_game_frame.h"
++#include <set>
++#include <tuple>
+ #include "rt64_workload_queue.h"
+ 
+ #include "xxHash/xxh3.h"
+@@ -785,6 +787,11 @@ namespace RT64 {
+     }
+     
+     void GameFrame::buildCallHashMap(uint32_t sceneProjIndex, const Workload &workload, const Projection &proj, std::multimap<uint64_t, GameCallMap> &hashMap) const {
++        // Repeated draws with identical matching inputs add no candidates:
++        // matchScene ultimately inserts their combinations into sets. Collapse
++        // them before its Cartesian product (Wetrix water repeats many draws).
++        using MatchingKey = std::tuple<uint64_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>;
++        std::set<MatchingKey> seen;
+         for (uint32_t c = 0; c < proj.gameCallCount; c++) {
+             const GameCall &call = proj.gameCalls[c];
+             uint32_t matrixIdHash = 0;
+@@ -802,7 +809,17 @@ namespace RT64 {
+                 doTileMatching = doTileMatching || (group.tileInterpolation == G_EX_COMPONENT_AUTO);
+             }
+ 
+-            hashMap.emplace(hashFromCall(call, matrixIdHash), GameCallMap{ sceneProjIndex, c, doTransformMatching, doTileInterpolation, doTileMatching });
++            const uint64_t hash = hashFromCall(call, matrixIdHash);
++            uint32_t lookAtIndex = 0;
++            if (call.meshDesc.faceIndicesStart < workload.drawData.faceIndices.size()) {
++                const uint32_t vertex = workload.drawData.faceIndices[call.meshDesc.faceIndicesStart];
++                lookAtIndex = workload.drawData.lookAtIndices[vertex] >> RSP_LOOKAT_INDEX_SHIFT;
++            }
++            const MatchingKey key{hash, call.callDesc.minWorldMatrix, call.callDesc.maxWorldMatrix,
++                call.callDesc.tileIndex, call.callDesc.tileCount, lookAtIndex};
++            if (seen.insert(key).second) {
++                hashMap.emplace(hash, GameCallMap{ sceneProjIndex, c, doTransformMatching, doTileInterpolation, doTileMatching });
++            }
+         }
+     }
+ 
+@@ -1039,4 +1056,4 @@ namespace RT64 {
+         }
+     }
+     */
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_present_queue.cpp b/src/hle/rt64_present_queue.cpp
+index 2afdfe2..29879f8 100644
+--- a/src/hle/rt64_present_queue.cpp
++++ b/src/hle/rt64_present_queue.cpp
+@@ -113,6 +113,10 @@ namespace RT64 {
+             viOriginalRate = ext.sharedResources->viOriginalRate;
+             targetRate = ext.sharedResources->targetRate;
+         }
++        // Fixed targets and Unlimited use the renderer's own pacing. Waiting
++        // for vblank here can stall a whole generated-frame batch at 60 Hz.
++        ext.swapChain->setVsyncEnabled(refreshRate == UserConfiguration::RefreshRate::Display ||
++            refreshRate == UserConfiguration::RefreshRate::Original);
+ 
+         RenderTarget *colorTarget = nullptr;
+         int32_t framesToPresent = 1;
+@@ -391,11 +395,11 @@ namespace RT64 {
+ 
+             if (presentFrame && swapChainValid) {
+                 // Wait until the approximate time the next present should be at the current intended rate.
+-                if ((presentTimestamp != Timestamp()) && (targetRate > 0) && (targetRate > viOriginalRate)) {
++                if (refreshRate != UserConfiguration::RefreshRate::Unlimited && (presentTimestamp != Timestamp()) && (targetRate > 0) && (targetRate > viOriginalRate)) {
+                     Timer::preciseSleepUntil(presentTimestamp + std::chrono::nanoseconds(1'000'000'000 / targetRate));
+                 }
+ 
+-                if (ext.swapChainPresentWaitEnabled) {
++                if (ext.swapChainPresentWaitEnabled && refreshRate != UserConfiguration::RefreshRate::Unlimited) {
+                     ext.swapChain->wait();
+                 }
+ 
+diff --git a/src/hle/rt64_rdp.cpp b/src/hle/rt64_rdp.cpp
+index 9a33a2d..f385487 100644
+--- a/src/hle/rt64_rdp.cpp
++++ b/src/hle/rt64_rdp.cpp
+@@ -1345,6 +1345,13 @@ namespace RT64 {
+             lry |= 3;
+         }
+ 
++#ifdef WETRIX_RECOMP
++        if (drawCall.wetrixLayer == 2) {
++            // Undo the native hook's positive-coordinate encoding after its CPU clip.
++            ulx -= 256 * 4;
++            lrx -= 256 * 4;
++        }
++#endif
+         drawRect(ulx, uly, lrx, lry, uls, ult, dsdx, dtdy, flip, extAlignment);
+     }
+ 
+diff --git a/src/hle/rt64_rdp_tmem.cpp b/src/hle/rt64_rdp_tmem.cpp
+index 6c56ff6..3f057aa 100644
+--- a/src/hle/rt64_rdp_tmem.cpp
++++ b/src/hle/rt64_rdp_tmem.cpp
+@@ -27,7 +27,15 @@ namespace RT64 {
+     void TextureManager::uploadEmpty(State *state, TextureCache *textureCache, uint64_t creationFrame, uint16_t width, uint16_t height, uint64_t replacementHash) {
+         if (hashSet.find(replacementHash) == hashSet.end()) {
+             hashSet.insert(replacementHash);
+-            textureCache->queueGPUUploadTMEM(replacementHash, creationFrame, nullptr, 0, width, height, 0, LoadTile(), false);
++            if (replacementHash == State::WetrixLandDetailHash) {
++                // Host-owned fallback for the optional ground material. No
++                // native texture memory or guest allocation is repurposed.
++                const std::vector<uint8_t> whiteTMEM(RDP_TMEM_BYTES, 255);
++                LoadTile tile{};
++                tile.fmt=G_IM_FMT_RGBA; tile.siz=G_IM_SIZ_32b; tile.line=8;
++                textureCache->queueGPUUploadTMEM(replacementHash, creationFrame, whiteTMEM.data(), int(whiteTMEM.size()), width, height, 0, tile, true);
++            }
++            else textureCache->queueGPUUploadTMEM(replacementHash, creationFrame, nullptr, 0, width, height, 0, LoadTile(), false);
+         }
+     }
+ 
+@@ -213,4 +221,4 @@ namespace RT64 {
+             hashSet.erase(hash);
+         }
+     }
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_rsp.cpp b/src/hle/rt64_rsp.cpp
+index 1da2550..a767892 100644
+--- a/src/hle/rt64_rsp.cpp
++++ b/src/hle/rt64_rsp.cpp
+@@ -371,8 +371,19 @@ namespace RT64 {
+         }
+ 
+         const uint32_t rdramAddress = fromSegmentedMasked(address);
+-        const Vertex *dlVerts = reinterpret_cast<const Vertex *>(state->fromRDRAM(rdramAddress));
+-        memcpy(&vertices[dstIndex], dlVerts, sizeof(Vertex) * vtxCount);
++        // Wetrix's empty terrain border lists load unused vertices from absent
++        // RDRAM. Such reads return zero; never dereference past host memory.
++        const size_t vertexBytes = sizeof(Vertex) * vtxCount;
++        if (uint64_t(rdramAddress) + vertexBytes > 0x800000) {
++            memset(&vertices[dstIndex], 0, vertexBytes);
++            if (rdramAddress < 0x800000) {
++                memcpy(&vertices[dstIndex], state->fromRDRAM(rdramAddress), 0x800000 - rdramAddress);
++            }
++        }
++        else {
++            const Vertex *dlVerts = reinterpret_cast<const Vertex *>(state->fromRDRAM(rdramAddress));
++            memcpy(&vertices[dstIndex], dlVerts, vertexBytes);
++        }
+         setVertexCommon<true, sizeof(Vertex)>(rdramAddress, dstIndex, dstIndex + vtxCount);
+     }
+     
+@@ -715,7 +726,15 @@ namespace RT64 {
+             floatIndex += 3;
+         }
+ 
+-        if (usesTextureGen) {
++        if (state->drawCall.wetrixLayer == 7) {
++            // One seamless detail tile per original 12-unit ground cell.
++            // Preserve all positions, normals, colors and triangle indices.
++            for (uint32_t i = dstIndex; i < dstMax; i++) {
++                tcFloats.emplace_back(float(vertices[i].x) * (32.0f / 12.0f));
++                tcFloats.emplace_back(float(vertices[i].z) * (32.0f / 12.0f));
++            }
++        }
++        else if (usesTextureGen) {
+             const float TextureSc = static_cast<float>(textureState.sc);
+             const float TextureTc = static_cast<float>(textureState.tc);
+             for (uint32_t i = dstIndex; i < dstMax; i++) {
+diff --git a/src/hle/rt64_state.cpp b/src/hle/rt64_state.cpp
+index 9ab24f8..40d8dce 100644
+--- a/src/hle/rt64_state.cpp
++++ b/src/hle/rt64_state.cpp
+@@ -110,6 +110,7 @@ namespace RT64 {
+         drawCall.rectAspect = G_EX_ASPECT_AUTO;
+         drawCall.scissorRect.reset();
+         drawCall.scissorMode = 0;
++        drawCall.wetrixLayer = 0;
+         drawCall.scissorLeftOrigin = G_EX_ORIGIN_NONE;
+         drawCall.scissorRightOrigin = G_EX_ORIGIN_NONE;
+         drawCall.scissorAspect = G_EX_ASPECT_AUTO;
+@@ -212,6 +213,15 @@ namespace RT64 {
+             drawCall.rdpParams.keyScale = rdp->keyScale;
+         }
+ 
++#ifdef WETRIX_RECOMP
++            // Capture the scene on the producer thread, so interpolation does
++            // not consult live game RAM while rendering older workloads.
++            drawCall.wetrixGameplay = *reinterpret_cast<const uint32_t *>(RDRAM + 0x7536C) == 3;
++            drawCall.wetrixMultiplayer =
++                *reinterpret_cast<const uint32_t *>(RDRAM + 0x876D0) == 2;
++#endif
++        drawCall.rdpParams.wetrixLandDetail =
++            (drawCall.wetrixLayer == 7 && wetrixLandDetailEnabled) ? 1U : 0U;
+         if (drawStatus.isChanged(DrawAttribute::Scissor)) {
+             drawCall.scissorRect = rdp->scissorRectStack[rdp->scissorStackSize - 1];
+             drawCall.scissorMode = rdp->scissorModeStack[rdp->scissorStackSize - 1];
+@@ -240,6 +250,7 @@ namespace RT64 {
+                 }
+             }
+ 
++            if (drawCall.rdpParams.wetrixLandDetail) drawCall.tileCount = 1;
+             const int workloadCursor = ext.workloadQueue->writeCursor;
+             Workload &workload = ext.workloadQueue->workloads[workloadCursor];
+             if (drawCall.tileCount > 0) {
+@@ -256,7 +267,15 @@ namespace RT64 {
+                 const uint8_t tileIndexBase = drawCall.textureTile;
+                 for (uint32_t t = 0; t < drawCall.tileCount; t++) {
+                     const uint8_t tileIndex = (tileIndexBase + t) % RDP_TILES;
+-                    const auto &tile = rdp->tiles[tileIndex];
++                    auto tile = rdp->tiles[tileIndex];
++                    if (drawCall.rdpParams.wetrixLandDetail) {
++                        // Host-only white proxy: real HD pixels are supplied by
++                        // the ordinary replacement cache, never guest RDRAM.
++                        tile = {};
++                        tile.fmt = G_IM_FMT_RGBA; tile.siz = G_IM_SIZ_32b;
++                        tile.line = 8; tile.masks = 5; tile.maskt = 5;
++                        tile.lrs = 124; tile.lrt = 124;
++                    }
+                     const uint32_t callTileIndex = drawCall.tileIndex + t;
+                     auto &dstCallTile = drawData.callTiles[callTileIndex];
+ 
+@@ -272,7 +291,7 @@ namespace RT64 {
+                     dstCallTile.reinterpretTile = false;
+                     dstCallTile.reinterpretSiz = 0;
+                     dstCallTile.reinterpretFmt = 0;
+-                    dstCallTile.tlut = rdp->otherMode.textLUT();
++                    dstCallTile.tlut = drawCall.rdpParams.wetrixLandDetail ? 0 : rdp->otherMode.textLUT();
+                     dstCallTile.minTexcoord = { INT_MAX, INT_MAX };
+                     dstCallTile.maxTexcoord = { INT_MIN, INT_MIN };
+ 
+@@ -312,7 +331,7 @@ namespace RT64 {
+ 
+                     // Since we can't simulate not sending the triangle coefficients individually and it falls in the realm
+                     // of undefined behavior, when the texture state is off, we merely clamp the result.
+-                    if (drawCall.textureOn) {
++                    if (drawCall.textureOn || drawCall.rdpParams.wetrixLandDetail) {
+                         dstRDPTile.lrs = float(tile.lrs);
+                         dstRDPTile.lrt = float(tile.lrt);
+                     }
+@@ -361,7 +380,8 @@ namespace RT64 {
+                     // the tile copy to make sense, but whether enough pixels are available in the copy according to the sampling
+                     // done by the calls is determined in a later step.
+                     FramebufferManager::CheckCopyResult checkResult;
+-                    checkResult = framebufferManager.checkRegionsTMEM(checkTMEMStart, checkTMEMEnd, dstCallTile.lineWidth, tile.siz, tile.fmt, tile.uls, usesTLUT, tile.palette);
++                    if (drawCall.rdpParams.wetrixLandDetail) checkResult = {};
++                    else checkResult = framebufferManager.checkRegionsTMEM(checkTMEMStart, checkTMEMEnd, dstCallTile.lineWidth, tile.siz, tile.fmt, tile.uls, usesTLUT, tile.palette);
+                     dstCallTile.syncRequired = checkResult.syncRequired;
+ 
+                     if (gpuCopiesEnabled && checkResult.valid()) {
+@@ -382,7 +402,8 @@ namespace RT64 {
+                     }
+                     else {
+                         dstCallTile.tileCopyUsed = false;
+-                        dstCallTile.tmemHashOrID = rdp->tileReplacementHashes[tileIndex];
++                        dstCallTile.tmemHashOrID = drawCall.rdpParams.wetrixLandDetail ?
++                            WetrixLandDetailHash : rdp->tileReplacementHashes[tileIndex];
+ 
+                         if (checkResult.syncRequired) {
+                             FramebufferPair &fbPair = workload.fbPairs[workload.currentFramebufferPairIndex()];
+@@ -542,6 +563,35 @@ namespace RT64 {
+         FramebufferPair &fbPair = workload.fbPairs[fbPairIndex];
+         fbPair.flushReason = flushReason;
+ 
++#ifdef WETRIX_RECOMP
++        // The native background only marks rows through 232 as written. Opening
++        // the raster scissor alone cannot reach the last eight rows: targetHeight
++        // is derived from this producer-side bound, even when an older 240-line
++        // menu texture remains allocated. Reserve the complete display surface
++        // for tagged backdrop passes so those old pixels are actually redrawn.
++        if (fbPair.colorImage.width == 320 && !fbPair.drawColorRect.isEmpty() &&
++            fbPair.drawColorRect.bottom(true) >= 232 && fbPair.drawColorRect.bottom(true) < 240) {
++            bool hasBackdrop = false;
++            for (uint32_t pi = 0; pi < fbPair.projectionCount && !hasBackdrop; ++pi) {
++                const auto &projection = fbPair.projections[pi];
++                for (uint32_t ci = 0; ci < projection.gameCallCount; ++ci) {
++                    if (projection.gameCalls[ci].callDesc.wetrixLayer == 1) {
++                        hasBackdrop = true;
++                        break;
++                    }
++                }
++            }
++            if (hasBackdrop) {
++                static bool reportedWetrixHeight = false;
++                if (!reportedWetrixHeight) {
++                    printf("Wetrix backdrop: extending render target from %d to 240 rows\n", fbPair.drawColorRect.bottom(true));
++                    reportedWetrixHeight = true;
++                }
++                fbPair.drawColorRect.merge(FixedRect(0, 0, 320 * 4, 240 * 4));
++            }
++        }
++#endif
++
+         // Add all the pending framebuffer operations to the first one that was found.
+         flushFramebufferOperations(fbPair);
+ 
+@@ -1002,6 +1052,7 @@ namespace RT64 {
+                     flags.rect = (proj.type == Projection::Type::Rectangle);
+                     flags.linearFiltering = linearFiltering || forceLinearFiltering;
+                     flags.usesTexture0 = callDesc.colorCombiner.usesTexture(callDesc.otherMode, 0, oneCycleHardwareBug);
++                    flags.usesTexture0 |= (callDesc.rdpParams.wetrixLandDetail != 0);
+                     flags.usesTexture1 = callDesc.colorCombiner.usesTexture(callDesc.otherMode, 1, oneCycleHardwareBug);
+                     flags.blenderApproximation = static_cast<unsigned>(blenderEmuReqs.approximateEmulation);
+                     flags.usesHDR = usesHDR;
+@@ -2838,4 +2889,4 @@ namespace RT64 {
+             break;
+         }
+     }
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_state.h b/src/hle/rt64_state.h
+index 4f10425..7ba0aeb 100644
+--- a/src/hle/rt64_state.h
++++ b/src/hle/rt64_state.h
+@@ -115,6 +115,8 @@ namespace RT64 {
+         ProfilingTimer screenCpuProfiler = ProfilingTimer(120);
+         ProfilingTimer viChangedProfiler = ProfilingTimer(120);
+         std::filesystem::path dumpingTexturesDirectory;
++        static constexpr uint64_t WetrixLandDetailHash = 0x5754584C414E4431ULL;
++        bool wetrixLandDetailEnabled = false;
+         bool configurationSaveQueued = false;
+         uint64_t workloadId = 0;
+         uint64_t presentId = 0;
+@@ -188,4 +190,4 @@ namespace RT64 {
+         void clearExtended();
+         void updateRenderFlagSampleCount();
+     };
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_transform_group.h b/src/hle/rt64_transform_group.h
+index 399e665..fe72ee3 100644
+--- a/src/hle/rt64_transform_group.h
++++ b/src/hle/rt64_transform_group.h
+@@ -25,4 +25,4 @@ namespace RT64 {
+         uint8_t aspectMode = G_EX_ASPECT_AUTO;
+         uint8_t editable = G_EX_EDIT_NONE;
+     };
+-};
+\ No newline at end of file
++};
+diff --git a/src/hle/rt64_workload_queue.cpp b/src/hle/rt64_workload_queue.cpp
+index 5a331aa..74a1832 100644
+--- a/src/hle/rt64_workload_queue.cpp
++++ b/src/hle/rt64_workload_queue.cpp
+@@ -221,11 +221,12 @@ namespace RT64 {
+         case UserConfiguration::RefreshRate::Manual:
+             workloadConfig.targetRate = ext.sharedResources->userConfig.refreshRateTarget;
+ 
+-            // Limit the target rate to the rate detected by the swap chain.
+-            if ((ext.sharedResources->swapChainRate > 0) && (workloadConfig.targetRate > ext.sharedResources->swapChainRate)) {
+-                workloadConfig.targetRate = ext.sharedResources->swapChainRate;
+-            }
+-
++            break;
++        case UserConfiguration::RefreshRate::Unlimited:
++            // Size interpolation batches from measured render cost, without a
++            // display-rate cap or presentation sleep.
++            workloadConfig.targetRate = uint32_t(std::max(60.0,
++                1000.0 / std::max(0.1, std::max(rendererCPUProfiler.average(),rendererGPUProfiler.average()))));
+             break;
+         case UserConfiguration::RefreshRate::Original:
+         default:
+@@ -997,6 +998,13 @@ namespace RT64 {
+                     }
+                 }
+ 
++                static int lastInterpolation = -1;
++                static unsigned diagnosticCount = 0;
++                if (lastInterpolation != int(generateInterpolatedFrames) || ++diagnosticCount >= 300) {
++                    fprintf(stderr, "Interpolation: active=%d source=%u target=%u paused=%d framebuffer=%08X pairs=%u\n", int(generateInterpolatedFrames), workload.viOriginalRate, workloadConfig.targetRate, int(workload.paused), interpolationTargetKey.address, workload.fbPairCount);
++                    fprintf(stderr, "Renderer timing: CPU %.2f ms GPU %.2f ms matching %.2f ms\n", rendererCPUProfiler.average(), rendererGPUProfiler.average(), matchingProfiler.average());
++                    lastInterpolation = int(generateInterpolatedFrames); diagnosticCount = 0;
++                }
+                 // Estimate amount of frames to render based on how many display frames it'd take to reach the next logical frame.
+                 uint32_t displayFrames = 1;
+                 if (generateInterpolatedFrames) {
+@@ -1221,4 +1229,4 @@ namespace RT64 {
+             }
+         }
+     }
+-};
+\ No newline at end of file
++};
+diff --git a/src/render/rt64_framebuffer_renderer.cpp b/src/render/rt64_framebuffer_renderer.cpp
+index 133c039..5be3bc7 100644
+--- a/src/render/rt64_framebuffer_renderer.cpp
++++ b/src/render/rt64_framebuffer_renderer.cpp
+@@ -15,6 +15,8 @@
+ 
+ #include "rt64_descriptor_sets.h"
+ #include "rt64_render_worker.h"
++#include <atomic>
++#include <cstdlib>
+ 
+ // TODO: Move to shared.
+ 
+@@ -272,6 +274,19 @@ namespace RT64 {
+                 gpuTile.flags.rawTMEM = !textureReplaced && callTile.rawTMEM;
+                 gpuTile.flags.hasMipmaps = hasMipmaps;
+                 gpuTile.flags.shiftedByHalf = shiftedByHalf;
++#ifdef WETRIX_RECOMP
++                // Optional one-shot proof at the actual GPU descriptor handoff,
++                // rather than merely reporting that an image exists on disk.
++                static const bool terrainAudit = std::getenv("WETRIX_TERRAIN_AUDIT") != nullptr;
++                static std::atomic_bool terrainReported{false};
++                if (terrainAudit && callTile.tmemHashOrID == 0x5754584C414E4431ULL &&
++                    textureReplaced && !terrainReported.exchange(true)) {
++                    printf("Ground material GPU binding: marked ground tile, HD resident %ux%u, texture index %u, frame %llu\n",
++                        unsigned(gpuTile.textureDimensions.x), unsigned(gpuTile.textureDimensions.y),
++                        textureIndex, static_cast<unsigned long long>(submissionFrame));
++                    fflush(stdout);
++                }
++#endif
+             }
+         }
+     }
+@@ -1447,6 +1462,23 @@ namespace RT64 {
+         const interop::float2 halfPixelOffset = { 1.0f / framebuffer.viewport.width, -1.0f / framebuffer.viewport.height };
+         const float middleViewport = (wideWidth / 2.0f) - (originalWidth / 2.0f);
+         const float extOriginPercentage = p.extAspectPercentage;
++#ifdef WETRIX_RECOMP
++        // CPU's three glyphs share an explicit producer span, but each glyph
++        // is a separate texture rectangle. Measure that span once so the whole
++        // label, rather than each character, centres in the right-hand view.
++        float wetrixCpuLabelLeft = 10000.0f;
++        float wetrixCpuLabelRight = -10000.0f;
++        for (uint32_t cpuPr = 0; cpuPr < fbPair.projectionCount; ++cpuPr) {
++            const Projection &cpuProjection = fbPair.projections[cpuPr];
++            if (cpuProjection.type != Projection::Type::Rectangle) continue;
++            for (uint32_t cpuD = 0; cpuD < cpuProjection.gameCallCount; ++cpuD) {
++                const auto &cpuCall = cpuProjection.gameCalls[cpuD].callDesc;
++                if (cpuCall.wetrixLayer != 10 || !cpuCall.wetrixMultiplayer) continue;
++                wetrixCpuLabelLeft = std::min(wetrixCpuLabelLeft, float(cpuCall.rect.left(true)));
++                wetrixCpuLabelRight = std::max(wetrixCpuLabelRight, float(cpuCall.rect.right(true)));
++            }
++        }
++#endif
+         uint32_t vertexTestZFaceIndicesStart = 0;
+         int32_t vertexTestZCallIndex = -1;
+         RenderViewport viewportClip;
+@@ -1506,8 +1538,95 @@ namespace RT64 {
+                 viewportClip = convertViewportRect(viewport.rect(viewportClipRatios), p.resolutionScale, p.fbWidth, projInvRatioScale, extOriginPercentage, 0.0f, viewportOrigin, viewportOrigin);
+             }
+ 
++#ifdef WETRIX_RECOMP
++            const auto wetrixBaseScreenScale = triangles.screenScale;
++            const auto wetrixBaseScreenOffset = triangles.screenOffset;
++#endif
+             for (uint32_t d = 0; (d < proj.gameCallCount) && (globalCallIndex < p.maxGameCall); d++) {
+                 const GameCall &call = proj.gameCalls[d];
++#ifdef WETRIX_RECOMP
++                triangles.screenScale = wetrixBaseScreenScale;
++                triangles.screenOffset = wetrixBaseScreenOffset;
++                bool wetrixWidePanel = false;
++                const bool leftHud=call.callDesc.wetrixLayer==5;
++                const bool rightHud=call.callDesc.wetrixLayer==6;
++                // Explicit producer markers identify only the two outside
++                // meters in split-screen. Layer6 also contains attack bars,
++                // so neither screen position nor that shared tag identifies
++                // a meter safely.
++                const bool splitOuterLeftHud=call.callDesc.wetrixLayer==8;
++                const bool splitOuterRightHud=call.callDesc.wetrixLayer==9;
++                const bool splitCpuLabel=call.callDesc.wetrixLayer==10 && call.callDesc.wetrixMultiplayer;
++                const bool wetrixAttractLeft=call.callDesc.wetrixLayer==12;
++                const bool singlePlayerHud=!call.callDesc.wetrixMultiplayer && (leftHud || rightHud);
++                const bool multiplayerOuterHud=call.callDesc.wetrixMultiplayer &&
++                    (splitOuterLeftHud || splitOuterRightHud);
++                // HUD producer tags remain valid after play ends; game-over
++                // changes the mode but uses the same score/timer routines.
++                float hudShift=(p.fbWidth==320 &&
++                    (singlePlayerHud || multiplayerOuterHud) && aspectRatioScale>1.001f) ?
++                    ((rightHud || splitOuterRightHud) ? 1.0f : -1.0f)*(wideWidth-originalWidth)*0.5f : 0.0f;
++                if (p.fbWidth==320 && wetrixAttractLeft && aspectRatioScale>1.001f) {
++                    // Preserve the native left-edge insets: text x48/2=24
++                    // and plaque x143/2-96/2=23.5. Remove only the centred
++                    // 4:3 canvas padding, including standalone press-start.
++                    hudShift=-(wideWidth-originalWidth)*0.5f;
++                }
++                if (p.fbWidth==320 && call.callDesc.wetrixMultiplayer && splitOuterLeftHud &&
++                    aspectRatioScale>1.001f) {
++                    // 80046D3C sets P1 x=33; 80046F30 subtracts one, then
++                    // 80046F34/80047044 add native +/-quake jitter. Translate
++                    // its fixed 32px baseline to 8px, retaining that animation.
++                    // P2's existing divider inset remains unchanged.
++                    hudShift=(8.0f-32.0f)*p.resolutionScale.y-(wideWidth-originalWidth)*0.5f;
++                }
++                if (p.fbWidth==320 && splitCpuLabel && aspectRatioScale>1.001f &&
++                    wetrixCpuLabelRight > wetrixCpuLabelLeft) {
++                    const float nativeLabelCentre=(wetrixCpuLabelLeft+wetrixCpuLabelRight)*0.5f;
++                    hudShift=wideWidth*0.75f-((wideWidth-originalWidth)*0.5f+
++                        nativeLabelCentre*p.resolutionScale.y);
++                }
++                // Native split views occupy x=16..159 and 161..304. Centre
++                // each in its own window half, preserving the scale of objects.
++                const auto &wetrixSplitScissor = call.callDesc.scissorRect;
++                const bool wetrixSplitLeft = wetrixSplitScissor.ulx == 64 && wetrixSplitScissor.lrx == 636;
++                const bool wetrixSplitRight = wetrixSplitScissor.ulx == 644 && wetrixSplitScissor.lrx == 1216;
++                const bool wetrixSplit = p.fbWidth == 320 && call.callDesc.wetrixMultiplayer &&
++                    (call.callDesc.wetrixLayer == 0 || call.callDesc.wetrixLayer == 7) && (wetrixSplitLeft || wetrixSplitRight);
++                const float wetrixSplitShift = wetrixSplit ?
++                    wideWidth * (wetrixSplitLeft ? 0.25f : 0.75f) -
++                    ((wideWidth-originalWidth)*0.5f + originalWidth *
++                     (wetrixSplitScissor.ulx+wetrixSplitScissor.lrx)/2560.0f) : 0.0f;
++                float wetrixPanelWidth = 320.0f;
++                const bool wetrixSolid = !call.callDesc.colorCombiner.usesTexture(call.callDesc.otherMode, 0, false) &&
++                    !call.callDesc.colorCombiner.usesTexture(call.callDesc.otherMode, 1, false);
++                if (p.fbWidth == 320 && wetrixSolid && !call.callDesc.otherMode.zCmp() &&
++                    !call.callDesc.otherMode.zUpd() && proj.usesViewport() &&
++                    call.callDesc.triangleCount > 0 && call.callDesc.triangleCount <= 8) {
++                    float left=10000.0f,right=-10000.0f;
++                    for(uint32_t vi=0;vi<call.callDesc.triangleCount*3;++vi) {
++                        auto vertex=drawData.faceIndices[call.meshDesc.faceIndicesStart+vi];
++                        float x=float(drawData.posScreen[vertex].x);
++                        left=std::min(left,x); right=std::max(right,x);
++                    }
++                    wetrixWidePanel = (std::abs(left)<0.5f && std::abs(right-320.0f)<0.5f) ||
++                        (std::abs(left-16.0f)<0.5f && std::abs(right-304.0f)<0.5f);
++                    wetrixPanelWidth=right-left;
++                }
++#endif
++
++#ifdef WETRIX_RECOMP
++                const auto &mask = call.callDesc.rect;
++                const bool horizontalMask = mask.ulx == 64 && mask.lrx == 1219 &&
++                    ((mask.uly == 0 && mask.lry == 35) || (mask.uly == 928 && mask.lry == 960));
++                const bool verticalMask = mask.uly == 0 && mask.lry == 960 &&
++                    ((mask.ulx == 0 && mask.lrx == 67) || (mask.ulx == 1216 && mask.lrx == 1280));
++                if (p.fbWidth == 320 && call.callDesc.otherMode.cycleType() == G_CYC_FILL &&
++                    (call.callDesc.fillColor & 0xFFFEFFFEU) == 0 && (horizontalMask || verticalMask)) {
++                    ++globalCallIndex;
++                    continue;
++                }
++#endif
+                 renderIndices.instanceIndex = call.callDesc.callIndex;
+                 renderIndices.faceIndicesStart = call.meshDesc.faceIndicesStart;
+                 renderIndices.rdpTileIndex = call.callDesc.tileIndex;
+@@ -1548,6 +1667,14 @@ namespace RT64 {
+                     }
+ 
+                     clearRect.rect = convertFixedRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
++#ifdef WETRIX_RECOMP
++                    // The menu's striped backdrop is a stack of fill rectangles,
++                    // not a textured image. Extend just these native-width bands.
++                    if (p.fbWidth == 320 && call.callDesc.rect.ulx <= 64 && call.callDesc.rect.lrx >= 1216) {
++                        clearRect.rect.left = 0;
++                        clearRect.rect.right = lround(wideWidth);
++                    }
++#endif
+                 }
+                 else if (call.callDesc.extendedType != DrawExtendedType::None) {
+                     switch (call.callDesc.extendedType) {
+@@ -1631,6 +1758,35 @@ namespace RT64 {
+                             instanceDrawCall.type = InstanceDrawCall::Type::IndexedTriangles;
+                             triangles.indexStart = triangles.vertexTestZ ? vertexTestZFaceIndicesStart : call.meshDesc.faceIndicesStart;
+                             invRatioScale = projInvRatioScale;
++#ifdef WETRIX_RECOMP
++                            if (wetrixSplit) triangles.screenOffset.x += wetrixSplitShift / halfViewportSize.x;
++                            triangles.screenOffset.x += hudShift / halfViewportSize.x;
++                            if (call.callDesc.wetrixLayer >= 3 && call.callDesc.wetrixLayer <= 4) {
++                                float left=10000,right=-10000,top=10000,bottom=-10000;
++                                for(uint32_t vi=0;vi<call.callDesc.triangleCount*3;++vi) {
++                                    auto v=drawData.faceIndices[call.meshDesc.faceIndicesStart+vi];
++                                    const auto& pos=drawData.posScreen[v];
++                                    left=std::min(left,float(pos.x)); right=std::max(right,float(pos.x));
++                                    top=std::min(top,float(pos.y)); bottom=std::max(bottom,float(pos.y));
++                                }
++                                if(right>left) {
++                                    triangles.screenScale.x *= aspectRatioScale*320.0f/(right-left);
++                                    triangles.screenOffset.x += (160.0f-(left+right)*0.5f)/160.0f*triangles.screenScale.x;
++                                }
++                                if(call.callDesc.wetrixLayer==4 && bottom>top) {
++                                    triangles.screenScale.y *= 240.0f/(bottom-top);
++                                    triangles.screenOffset.y += ((top+bottom)*0.5f-120.0f)/120.0f*triangles.screenScale.y;
++                                }
++                            } else if (wetrixWidePanel) {
++                                triangles.screenScale.x *= aspectRatioScale * 320.0f / wetrixPanelWidth;
++                            }
++                            if (p.fbWidth == 320 && call.callDesc.wetrixLayer == 1) {
++                                // The backdrop was authored for the TV-safe area.
++                                // Extend only this pass; board and HUD retain their scale.
++                                triangles.screenScale.x *= aspectRatioScale;
++                                triangles.screenScale.y *= 240.0f / 224.0f;
++                            }
++#endif
+                             break;
+                         }
+                         case Projection::Type::Rectangle: {
+@@ -1653,6 +1809,39 @@ namespace RT64 {
+                             }
+ 
+                             RenderViewport viewportRect = convertViewportRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
++#ifdef WETRIX_RECOMP
++                            if (wetrixSplit) viewportRect.x += wetrixSplitShift;
++                            viewportRect.x += hudShift;
++                            const auto &r = call.callDesc.rect;
++                            const auto &s = call.callDesc.scissorRect;
++                            if(p.fbWidth==320 && wetrixSolid && regularOrigins &&
++                                r.ulx<=64 && r.lrx>=1216) {
++                                viewportRect.x=0;
++                                viewportRect.width=wideWidth;
++                                wetrixWidePanel=true;
++                                if(r.uly<=32 && r.lry>=928) {
++                                    viewportRect.y=0;
++                                    viewportRect.height=commonHeight;
++                                }
++                            }
++                            if (p.fbWidth == 320 && r.ulx <= 64 && r.lrx >= 1216 && regularOrigins && !call.shaderDesc.otherMode.zUpd()) {
++                                // Only full-width backdrop strips stretch. Their
++                                // original texture coordinates remain intact.
++                                viewportRect.x = 0;
++                                viewportRect.width = wideWidth;
++                                wetrixWidePanel = true;
++                                if(r.uly<=32 && r.lry>=928) {
++                                    viewportRect.y=0;
++                                    viewportRect.height=commonHeight;
++                                }
++                            }
++#endif
++#ifdef WETRIX_RECOMP
++                            if (p.fbWidth == 320 && call.callDesc.wetrixLayer == 2) {
++                                // Spread travel across the window, retaining uniform sprite size.
++                                viewportRect.x = (float(call.callDesc.rect.ulx) / 1280.0f) * wideWidth;
++                            }
++#endif
+                             triangles.screenScale = { viewportRect.width / framebuffer.viewport.width, viewportRect.height / framebuffer.viewport.height };
+                             triangles.screenOffset.x = halfPixelOffset.x + ((viewportRect.x + viewportRect.width / 2.0f) - halfViewportSize.x) / halfViewportSize.x;
+                             triangles.screenOffset.y = halfPixelOffset.y + (halfViewportSize.y - (viewportRect.y + viewportRect.height / 2.0f)) / halfViewportSize.y;
+@@ -1694,6 +1883,24 @@ namespace RT64 {
+                         if (usesViewport) {
+                             triangles.scissor = viewportScissorIntersection(viewportClip, triangles.scissor);
+                         }
++
++#ifdef WETRIX_RECOMP
++                        // Wetrix's TV-safe scissor leaves 16px at each side and
++                        // 8px at top/bottom. Open the clip, keeping all vertex
++                        // transforms unchanged (no zoom of the board or HUD).
++                        const auto &nativeScissor = call.callDesc.scissorRect;
++                        if (wetrixSplit) {
++                            const int splitX = lround(wideWidth * 0.5f);
++                            triangles.scissor = RenderRect(wetrixSplitLeft ? 0 : splitX, 0,
++                                wetrixSplitLeft ? splitX : lround(wideWidth), lround(commonHeight));
++                        }
++                        if (p.fbWidth == 320 && (wetrixWidePanel || (call.callDesc.wetrixLayer > 0 && call.callDesc.wetrixLayer <= 6) ||
++                            splitOuterLeftHud || splitOuterRightHud || splitCpuLabel || wetrixAttractLeft ||
++                            (nativeScissor.ulx == 64 && nativeScissor.uly == 32 &&
++                             nativeScissor.lrx == 1216 && nativeScissor.lry == 928))) {
++                            triangles.scissor = RenderRect(0, 0, lround(wideWidth), lround(commonHeight));
++                        }
++#endif
+                         
+                         if (triangles.vertexTestZ && usesViewport) {
+                             instanceDrawCallVector[vertexTestZCallIndex].vertexTestZ.indexCount += call.callDesc.triangleCount * 3;
+@@ -1929,4 +2136,4 @@ namespace RT64 {
+         unsigned int im3dVertexCount;
+     };
+ };
+-*/
+\ No newline at end of file
++*/
+diff --git a/src/shaders/RasterPS.hlsl b/src/shaders/RasterPS.hlsl
+index e7895c3..b67902d 100644
+--- a/src/shaders/RasterPS.hlsl
++++ b/src/shaders/RasterPS.hlsl
+@@ -182,6 +182,34 @@ LIBRARY_EXPORT bool RasterPS(const RenderParams rp, float4 vertexPosition, float
+     ccInputs.K4 = (instanceRDPParams[instanceIndex].convertK[4] / 255.0f);
+     ccInputs.K5 = (instanceRDPParams[instanceIndex].convertK[5] / 255.0f);
+     colorCombiner.run(ccInputs, combinerColor, alphaCompareValue);
++    // Ground detail is an opt-in per-call material, after the native color
++    // calculation. A missing/not-yet-loaded replacement leaves original RGB.
++    if (instanceRDPParams[instanceIndex].wetrixLandDetail != 0) {
++        const uint detailTile = instanceRenderIndices[gConstants.renderIndex].rdpTileIndex;
++        if (gpuTileFlagHighRes(GPUTiles[detailTile].flags)) {
++            const float detail = dot(texVal0.rgb, float3(0.2126f, 0.7152f, 0.0722f));
++            const float grain = clamp(1.0f + (detail - 128.0f / 255.0f) * 0.04f, 0.992f, 1.008f);
++
++            // Native vertices start at -192 with a 12-unit lattice. The
++            // original checker colors cover 3x3 lattice cells. This phase is
++            // verified against all 900 interior cells in the native RAM dump,
++            // so the two densities follow checker colors without hue tests.
++            const float2 cell = vertexUV / 32.0f + 16.0f;
++            const float2 checker = floor(cell / 3.0f);
++            const float checkerParity = frac((checker.x + checker.y) * 0.5f) * 2.0f;
++            // Eight/four lines per 3-cell checker, retaining exact boundary phase.
++            const float subdivisions = lerp(8.0f / 3.0f, 4.0f / 3.0f, checkerParity);
++
++            // Derivatives are taken before the density choice to avoid an
++            // artificial footprint spike at a checker-color boundary.
++            const float2 footprint = max(fwidth(cell) * subdivisions, float2(0.0001f, 0.0001f));
++            const float2 lineDistance = abs(frac(cell * subdivisions + 0.5f) - 0.5f);
++            const float2 axisCoverage = saturate(0.85f - lineDistance / footprint);
++            const float2 resolved = 1.0f - smoothstep(float2(0.5f, 0.5f), float2(1.0f, 1.0f), footprint);
++            const float grid = max(axisCoverage.x * resolved.x, axisCoverage.y * resolved.y);
++            combinerColor.rgb *= grain * (1.0f - grid * 0.14f);
++        }
++    }
+     
+ #if 0
+     // Alpha dither.
+@@ -310,4 +338,4 @@ void PSMain(
+     pixelColor = resultColor;
+     pixelAlpha = resultAlpha;
+ }
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/src/shared/rt64_rdp_params.h b/src/shared/rt64_rdp_params.h
+index 56e0301..bb73c86 100644
+--- a/src/shared/rt64_rdp_params.h
++++ b/src/shared/rt64_rdp_params.h
+@@ -19,7 +19,9 @@ namespace interop {
+         float3 keyCenter;
+         float3 keyScale;
+         int convertK[6];
++        // Optional host material on explicitly marked Wetrix ground calls.
++        uint wetrixLandDetail;
+     };
+ #ifdef HLSL_CPU
+ };
+-#endif
+\ No newline at end of file
++#endif

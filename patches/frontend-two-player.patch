@@ -1,0 +1,290 @@
+diff --git a/recompinput/include/recompinput/input_types.h b/recompinput/include/recompinput/input_types.h
+index f5ed6c0..4384847 100644
+--- a/recompinput/include/recompinput/input_types.h
++++ b/recompinput/include/recompinput/input_types.h
+@@ -10,6 +10,7 @@ namespace recompinput {
+     #define DEFINE_N64_BUTTON_INPUTS() \
+         DEFINE_INPUT(A, 0x8000, "A") \
+         DEFINE_INPUT(B, 0x4000, "B") \
++        DEFINE_INPUT(ROTATE_REVERSE, 0x0040, "Reverse Rotate") \
+         DEFINE_INPUT(Z, 0x2000, "Z") \
+         DEFINE_INPUT(L, 0x0020, "L") \
+         DEFINE_INPUT(R, 0x0010, "R") \
+diff --git a/recompinput/include/recompinput/players.h b/recompinput/include/recompinput/players.h
+index 6c59b61..1610087 100644
+--- a/recompinput/include/recompinput/players.h
++++ b/recompinput/include/recompinput/players.h
+@@ -16,6 +16,8 @@ namespace recompinput {
+ 
+     namespace players {
+         size_t get_number_of_assigned_players();
++        void assign_device(int player, SDL_GameController* controller, bool keyboard);
++
+         size_t get_max_number_of_players();
+         bool is_single_player_mode();
+         void set_single_player_mode(bool single_player);
+diff --git a/recompinput/src/players.cpp b/recompinput/src/players.cpp
+index 08cb3f3..ebd87df 100644
+--- a/recompinput/src/players.cpp
++++ b/recompinput/src/players.cpp
+@@ -20,6 +20,7 @@ public:
+     PlayerArray() : players_array{}, count(0) {}
+     PlayerArray(const PlayerArray& other) : players_array(other), count(other.count) {}
+ 
++    void set_count(size_t value) { count = value; }
+     size_t get_count() const {
+         return count;
+     }
+@@ -62,6 +63,29 @@ static struct {
+     bool queue_close_player_assignment_modal = false;
+ } PlayerState;
+ 
++void players::assign_device(int index, SDL_GameController* controller, bool keyboard) {
++    if (index < 0 || index >= 2) return;
++    auto& player = PlayerState.players[index];
++    player.controller = controller;
++    player.keyboard_enabled = keyboard;
++    PlayerState.players.set_count(2);
++    int profile=controller ? profiles::get_controller_profile_index_from_sdl_controller(controller) : -1;
++    if(controller && (index==0 || profile<0)) profile=profiles::get_sp_controller_profile_index();
++    if(index==1 && profile>=0) {
++        std::string key="wetrix_player2_"+profiles::get_input_profile_key(profile);
++        int separate=profiles::get_input_profile_by_key(key);
++        if(separate<0) {
++            separate=profiles::add_input_profile(key,"Player 2 Controller",InputDevice::Controller,true);
++            for(int input=0;input<int(GameInput::COUNT);++input)
++                for(size_t binding=0;binding<num_bindings_per_input;++binding)
++                    profiles::set_input_binding(separate,GameInput(input),binding,profiles::get_input_binding(profile,GameInput(input),binding));
++        }
++        profile=separate;
++    }
++    profiles::set_input_profile_for_player(index, profile, InputDevice::Controller);
++    profiles::set_input_profile_for_player(index, keyboard ? (index == 0 ? profiles::get_sp_keyboard_profile_index() : profiles::get_or_create_mp_keyboard_profile_index(index)) : -1, InputDevice::Keyboard);
++}
++
+ size_t players::get_number_of_assigned_players() {
+     return PlayerState.players.get_count();
+ }
+@@ -106,7 +130,9 @@ const recompinput::Player& players::get_player(int player_index, bool temp_playe
+ }
+ 
+ bool players::get_player_is_assigned(int player_index, bool temp_player) {
+-    return PlayerState.get_player_array(temp_player).player_is_assigned(player_index);
++    if (!PlayerState.get_player_array(temp_player).player_is_assigned(player_index)) return false;
++    const auto& player = PlayerState.get_player_array(temp_player)[player_index];
++    return player.keyboard_enabled || player.controller != nullptr;
+ }
+ 
+ bool players::has_enough_players_assigned() {
+diff --git a/recompinput/src/profiles.cpp b/recompinput/src/profiles.cpp
+index c89956e..952af05 100644
+--- a/recompinput/src/profiles.cpp
++++ b/recompinput/src/profiles.cpp
+@@ -363,6 +363,13 @@ namespace recompinput {
+                 false
+             );
+             clear_all_mappings(profile_index);
++            if(player_index==1) {
++                for(auto [input,key] : {std::pair{GameInput::DPAD_UP,SDL_SCANCODE_I},
++                    {GameInput::DPAD_DOWN,SDL_SCANCODE_K},{GameInput::DPAD_LEFT,SDL_SCANCODE_J},
++                    {GameInput::DPAD_RIGHT,SDL_SCANCODE_L},{GameInput::A,SDL_SCANCODE_U},
++                    {GameInput::B,SDL_SCANCODE_O},{GameInput::START,SDL_SCANCODE_RSHIFT}})
++                    profiles::set_input_binding(profile_index,input,0,InputField::keyboard(key));
++            }
+         }
+         return profile_index;
+     }
+diff --git a/recompui/src/config/ui_config_page_controls.cpp b/recompui/src/config/ui_config_page_controls.cpp
+index f379a6f..d49dcb4 100644
+--- a/recompui/src/config/ui_config_page_controls.cpp
++++ b/recompui/src/config/ui_config_page_controls.cpp
+@@ -8,6 +8,7 @@
+ #include "elements/ui_select.h"
+ #include "recompinput/profiles.h"
+ #include "recompui/config.h"
++#include "wetrix_devices.h"
+ 
+ namespace recompui {
+ 
+@@ -172,7 +173,7 @@ ConfigPageControls::ConfigPageControls(ResourceId rid, Element *parent) : Config
+ 
+     multiplayer_enabled = recompinput::players::is_single_player_mode() == false;
+     this->max_num_players = multiplayer_enabled ? recompinput::players::get_max_number_of_players() : 1;
+-    multiplayer_view_mappings = !multiplayer_enabled;
++    multiplayer_view_mappings = true;
+ 
+     set_selected_player(selected_player);
+ 
+@@ -217,6 +218,12 @@ void ConfigPageControls::create_game_input_contexts() {
+ void ConfigPageControls::process_event(const Event &e) {
+     switch (e.type) {
+     case EventType::Update:
++        {
++            std::string signature=wetrix_device_selection(selected_player);
++            for(auto& option:wetrix_device_options()) signature+=option.first;
++            signature+=std::to_string(int(recompinput::players::get_player_input_device(selected_player)));
++            if(signature!=wetrix_device_signature) { wetrix_device_signature=signature; force_update(); }
++        }
+         if (awaiting_binding && !recompinput::binding::is_binding()) {
+             awaiting_binding = false;
+             update_control_mappings();
+@@ -257,74 +264,28 @@ static void show_or_hide_if_exists(Element* element, bool show) {
+ }
+ 
+ void ConfigPageControls::render_header() {
+-    // Header attempts to not re-render elements if not necessary, instead swapping visibility / updating text.
+-
+-    if (!multiplayer_enabled) {
+-        hide_header();
+-        return;
+-    }
+-
+-    recompui::ContextId context = get_current_context();
++    auto context=get_current_context();
+     add_header();
+-    header->set_as_navigation_container(NavigationType::Horizontal);
+-
+-    // header left
+-    {
+-        auto header_left = header->get_left();
+-
+-        if (multiplayer_view_mappings) {
+-            std::string profile_name = "Editing: " + recompinput::profiles::get_input_profile_name(selected_profile_index);
+-            if (header_elements.left.profile_name_label == nullptr) {
+-                header_elements.left.profile_name_label = context.create_element<Label>(
+-                    header_left,
+-                    profile_name,
+-                    LabelStyle::Normal
+-                );
+-            } else if (header_elements.left.current_profile_name != profile_name) {
+-                header_elements.left.profile_name_label->set_text(profile_name);
+-            }
+-            header_elements.left.current_profile_name = profile_name;
+-            show_or_hide_if_exists(header_elements.left.profile_name_label, true);
+-        } else {
+-            show_or_hide_if_exists(header_elements.left.profile_name_label, false);
+-            // Nothing rendered here as of now.. maybe single player toggle
+-        }
+-    }
+-
+-    // header right
+-    {
+-        auto header_right = header->get_right();
+-
+-        if (multiplayer_view_mappings) {
+-            if (header_elements.right.go_back_button == nullptr) {
+-                header_elements.right.go_back_button = context.create_element<Button>(header_right, "Go back", ButtonStyle::Tertiary);
+-                header_elements.right.go_back_button->add_pressed_callback([this]() {
+-                    this->multiplayer_view_mappings = false;
+-                    this->queue_selected_player_profile_edit_focus = true;
+-                    this->force_update();
+-                });
+-                header_elements.right.go_back_button->set_as_primary_focus(true);
+-            }
+-
+-            show_or_hide_if_exists(header_elements.right.go_back_button, true);
+-            show_or_hide_if_exists(header_elements.right.assign_players_button, false);
+-        } else {
+-            if (header_elements.right.assign_players_button == nullptr) {
+-                header_elements.right.assign_players_button = context.create_element<Button>(header_right, "Assign players", ButtonStyle::Primary);
+-                header_elements.right.assign_players_button->set_debug_id("AssignPlayersButton");
+-                header_elements.right.assign_players_button->add_pressed_callback([]() {
+-                    if (!recompinput::players::has_enough_players_assigned()) {
+-                        recompinput::playerassignment::start();
+-                    }
+-                    recompui::AssignPlayersModal::open();
+-                });
+-                header_elements.right.assign_players_button->set_as_primary_focus(true);
+-            }
++    auto left=header->get_left();
++    auto right=header->get_right();
++    left->clear_children(); right->clear_children();
++    for(int p=0;p<2;++p) {
++        auto tab=context.create_element<Button>(left,"Player "+std::to_string(p+1),p==selected_player ? ButtonStyle::Primary : ButtonStyle::Tertiary);
++        tab->add_pressed_callback([this,p]() { set_selected_player(p); force_update(); });
++    }
++    std::vector<SelectOption> options;
++    auto selected=wetrix_device_selection(selected_player);
++    bool found=false;
++    for(auto& [value,name]:wetrix_device_options()) { options.emplace_back(name,value); found |= value==selected; }
++    if(!found) options.emplace_back("Disconnected controller",selected);
++    right->set_width(420.0f);
++    auto selector=context.create_element<Select>(right,options,selected);
++    selector->add_change_callback([this](SelectOption& option,int) {
++        wetrix_device_select(selected_player,option.value);
++        force_update();
++    });
++    set_current_profile_index();
+ 
+-            show_or_hide_if_exists(header_elements.right.go_back_button, false);
+-            show_or_hide_if_exists(header_elements.right.assign_players_button, true);
+-        }
+-    }
+ }
+ 
+ bool ConfigPageControls::should_show_mappings() {
+@@ -561,7 +522,11 @@ void ConfigPageControls::render_control_mappings() {
+ }
+ 
+ void ConfigPageControls::set_current_profile_index() {
+-    if (!multiplayer_enabled) {
++    if (multiplayer_enabled) {
++        auto device=recompinput::players::get_player_input_device(selected_player);
++        selected_profile_index=device==recompinput::InputDevice::COUNT ? -1 : recompinput::profiles::get_input_profile_for_player(selected_player,device);
++        if(selected_profile_index<0) selected_profile_index=recompinput::profiles::get_or_create_mp_keyboard_profile_index(selected_player);
++    } else {
+         selected_profile_index = single_player_show_keyboard_mappings
+             ? recompinput::profiles::get_sp_keyboard_profile_index()
+             : recompinput::profiles::get_sp_controller_profile_index();
+@@ -630,7 +595,8 @@ void ConfigPageControls::update_control_mappings() {
+ 
+ recompinput::InputDevice ConfigPageControls::get_player_input_device() {
+     if (multiplayer_enabled) {
+-        return recompinput::players::get_player_input_device(this->selected_player);
++        auto device=recompinput::players::get_player_input_device(this->selected_player);
++        return device==recompinput::InputDevice::COUNT ? recompinput::InputDevice::Keyboard : device;
+     }
+ 
+     return single_player_show_keyboard_mappings
+@@ -658,6 +624,7 @@ void ConfigPageControls::on_clear_or_reset_game_input(recompinput::GameInput gam
+ 
+ void ConfigPageControls::set_selected_player(int player) {
+     selected_player = player;
++    set_current_profile_index();
+ }
+ 
+ void ConfigPageControls::on_option_hover(recompinput::GameInput input_id) {
+diff --git a/recompui/src/config/ui_config_page_controls.h b/recompui/src/config/ui_config_page_controls.h
+index dd8ff24..d1a9703 100644
+--- a/recompui/src/config/ui_config_page_controls.h
++++ b/recompui/src/config/ui_config_page_controls.h
+@@ -95,6 +95,7 @@ protected:
+     int update_index = 0;
+ 
+     int selected_player = 0;
++    std::string wetrix_device_signature;
+     int selected_profile_index = -1;
+     size_t max_num_players;
+ 
+diff --git a/recompui/src/config/ui_config_tab_graphics.cpp b/recompui/src/config/ui_config_tab_graphics.cpp
+index 4fdf81f..1d07e94 100644
+--- a/recompui/src/config/ui_config_tab_graphics.cpp
++++ b/recompui/src/config/ui_config_tab_graphics.cpp
+@@ -65,7 +65,7 @@ namespace recompui {
+         };
+ 
+         static EnumOptionVector aspect_ratio_options = {
+-            {ultramodern::renderer::AspectRatio::Original, "Original"},
++            {ultramodern::renderer::AspectRatio::Original, "4:3"},
+             {ultramodern::renderer::AspectRatio::Expand, "Expand"},
+             // {ultramodern::renderer::AspectRatio::Manual, "Manual"},
+         };
+@@ -286,7 +286,7 @@ namespace recompui {
+             config.add_enum_option(
+                 graphics::options::ar_option,
+                 "Aspect Ratio",
+-                "Sets the horizontal aspect ratio. <recomp-color primary>Original</recomp-color> uses the game's original 4:3 aspect ratio. <recomp-color primary>Expand</recomp-color> will adjust to match the game window's aspect ratio.",
++                "<recomp-color primary>4:3</recomp-color> uses the original aspect ratio, with black bars at the sides of a wider window. <recomp-color primary>Expand</recomp-color> extends the view to fill the window.",
+                 aspect_ratio_options,
+                 ultramodern::renderer::AspectRatio::Expand
+             );

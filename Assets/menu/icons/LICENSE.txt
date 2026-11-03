@@ -1,0 +1,10 @@
+SPDX-License-Identifier: GPL-3.0-only
+
+Copyright (C) 2026 Wetrix N64 Recomp contributors
+
+The twenty-two SVG icons listed in ATTRIBUTION.json are newly authored simple
+geometric UI artwork for this project. They are licensed under the GNU General
+Public License, version 3. See the complete license in ../../../LICENSE.
+
+These files replace earlier icon files. No license grant from SSSV or another
+external icon author is asserted or required for this newly authored artwork.

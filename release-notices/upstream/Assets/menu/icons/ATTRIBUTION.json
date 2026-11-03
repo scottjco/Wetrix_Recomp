@@ -1,0 +1,140 @@
+{
+  "author": "Wetrix N64 Recomp contributors",
+  "copyright_year": 2026,
+  "license": "GPL-3.0-only",
+  "provenance": "Newly authored geometric SVG artwork expressing standard UI roles; not copied SSSV SVG paths.",
+  "icons": [
+    {
+      "file": "Arrow.svg",
+      "role": "Continue / right arrow",
+      "viewBox": "0 0 32 32",
+      "sha256": "bb75dc09e806939714de8b27180921bf218974b1be43db876a9627943803ddd4"
+    },
+    {
+      "file": "Caret.svg",
+      "role": "Expand / downward caret",
+      "viewBox": "0 0 32 32",
+      "sha256": "16b98a6135ff25b3885444a9f289dadfac95532ab30b92e793764b31f5f82585"
+    },
+    {
+      "file": "Cont.svg",
+      "role": "Game controller",
+      "viewBox": "0 0 32 32",
+      "sha256": "b7d73b6a8e5f5f41affa245324ec33eff5db0c367f4556966019143f7ea14a1b"
+    },
+    {
+      "file": "Keyboard.svg",
+      "role": "Keyboard",
+      "viewBox": "0 0 32 32",
+      "sha256": "fe062aaf8497d60659dd679e194a7284f496562e98ce413a68e2bdb47f23faab"
+    },
+    {
+      "file": "Plus.svg",
+      "role": "Add",
+      "viewBox": "0 0 32 32",
+      "sha256": "43f045acb5d02c8760f5d2ad77545d3b0997db3e9da22d8e1e0d2c9ab4d69c5b"
+    },
+    {
+      "file": "PlusKeyboard.svg",
+      "role": "Add keyboard",
+      "viewBox": "0 0 48 20",
+      "sha256": "9c6382ab78099c349afd062d748bb0747df1ad0835ba8a5b0a49033347d8d3f9"
+    },
+    {
+      "file": "Port.svg",
+      "role": "Controller connector port",
+      "viewBox": "0 0 32 32",
+      "sha256": "2d150d23444cb81c43a9ab861d10370c946bf37c51c704220929f4fdfd534177"
+    },
+    {
+      "file": "Question.svg",
+      "role": "Help",
+      "viewBox": "0 0 32 32",
+      "sha256": "cfe25ff6603a8fba2ee6038e9ef01234ae2961fee0eaa51177cf4d35d8856044"
+    },
+    {
+      "file": "Quit.svg",
+      "role": "Exit application",
+      "viewBox": "0 0 32 32",
+      "sha256": "27cb77ebac6a685f52483d8e4c8a8d4980548103cbdcf48157c8fc29af11b62c"
+    },
+    {
+      "file": "RecordBorder.svg",
+      "role": "Recording border",
+      "viewBox": "0 0 40 40",
+      "sha256": "c35d5c92442d665c9b3663207b61b70000567f242c31b7de29b613e05ef0e6be"
+    },
+    {
+      "file": "RecordSpinner.svg",
+      "role": "Recording activity indicator",
+      "viewBox": "0 0 32 32",
+      "sha256": "b4cf6dc18d55207832ce2c038196ab9bf890ec891f56e61f68085c79d91b7f48"
+    },
+    {
+      "file": "Reset.svg",
+      "role": "Reset / restore",
+      "viewBox": "0 0 32 32",
+      "sha256": "1b6f7e6dd4c586450485c2b9d1a92e9fa5a6c5eda092f79336616d1da6feaaf1"
+    },
+    {
+      "file": "Trash.svg",
+      "role": "Delete",
+      "viewBox": "0 0 32 32",
+      "sha256": "a9e11648b46852a86d5cc1283b13566300bd2b0bc57aaa0fd18d49467807963f"
+    },
+    {
+      "file": "X.svg",
+      "role": "Close / remove",
+      "viewBox": "0 0 32 32",
+      "sha256": "8afa3513b259e99815dda886c8491fbd291d4647cd4666c75ddd46aea0e035a2"
+    },
+    {
+      "file": "VizMap/DPad.svg",
+      "role": "Directional pad",
+      "viewBox": "0 0 192 192",
+      "sha256": "5562620ab72d38a595e84057e9e8dd2ac3a4b5ba258a1165cd097295c3856e40"
+    },
+    {
+      "file": "VizMap/DPadArrow.svg",
+      "role": "Upward directional indicator",
+      "viewBox": "0 0 60 60",
+      "sha256": "f5c240a46ffa3ec294629f79f8c418c0f2fe1221c803a5fc36e5d9c4a082da75"
+    },
+    {
+      "file": "VizMap/Map.svg",
+      "role": "Input mapping area",
+      "viewBox": "0 0 136 136",
+      "sha256": "f0baacb1df79f0c8586196056b10b97b27739c5a71f5ac7d1841459e53b1fd8f"
+    },
+    {
+      "file": "VizMap/Shield.svg",
+      "role": "Shield input",
+      "viewBox": "0 0 96 96",
+      "sha256": "2c42289707ece657e2cdce575df7b43a2d4a2df35ce64d2eee5c56a204a0200c"
+    },
+    {
+      "file": "VizMap/Target.svg",
+      "role": "Target / input focus",
+      "viewBox": "0 0 154 154",
+      "sha256": "5952ab682c595d99c3b60f8df1413ff91da13e4c64fc03e9ed4a93b7c9d96a8c"
+    },
+    {
+      "file": "VizMap/ButtonLarge.svg",
+      "role": "Controller button",
+      "viewBox": "0 0 84 84",
+      "sha256": "8369656d1e4a2e2eb68b6094e844facb47efa9bd5123a939a776b2a0c685b651"
+    },
+    {
+      "file": "VizMap/ButtonMedium.svg",
+      "role": "Controller button",
+      "viewBox": "0 0 76 76",
+      "sha256": "9a14dd67fff3de4c7cf8545f4a44791c0810ece76e84fbc678b32f1ae6b7d08b"
+    },
+    {
+      "file": "VizMap/ButtonSmall.svg",
+      "role": "Controller button",
+      "viewBox": "0 0 64 64",
+      "sha256": "82735de0e9850fa0e11454b333e88c5aece1ad01f928f1ccb662f6fbd66e9e60"
+    }
+  ]
+}

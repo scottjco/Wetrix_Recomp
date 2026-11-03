@@ -1,0 +1,402 @@
+{
+  "dependency_revisions": {
+    "lib/N64Recomp": "ffb39cdad1da5de07eaaa48bd1db4a89a7986771",
+    "lib/N64ModernRuntime": "cdf5abbd5026fef5c364c676e4667c45e42b6863",
+    "lib/rt64": "d9817c68ffd7328cd0af383af124971489366e18",
+    "lib/RecompFrontend": "b3b7ebb4ec1a8a763c0191486f1b3329f9499a48"
+  },
+  "notices": [
+    {
+      "source": "Assets/menu/Inter-OFL.txt",
+      "notice": "release-notices/upstream/Assets/menu/Inter-OFL.txt",
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    },
+    {
+      "source": "Assets/menu/NotoEmoji-OFL.txt",
+      "notice": "release-notices/upstream/Assets/menu/NotoEmoji-OFL.txt",
+      "sha256": "500bb1ccf43df7bbb522112f9133a52b16e1c35e809632f5d8609b179152de5b"
+    },
+    {
+      "source": "Assets/menu/promptfont/LICENSE.txt",
+      "notice": "release-notices/upstream/Assets/menu/promptfont/LICENSE.txt",
+      "sha256": "6c18ad8456572e565054d86e8bc5f444e760f77624aed710b7ba828c03af51ae"
+    },
+    {
+      "source": "Assets/menu/promptfont/README.md",
+      "notice": "release-notices/upstream/Assets/menu/promptfont/README.md",
+      "sha256": "c2ad42a8af7a795de661d0792f4a8fe02dd9df2156f30e228abe69d4ca3d9940"
+    },
+    {
+      "source": "lib/N64ModernRuntime/COPYING",
+      "notice": "release-notices/upstream/lib/N64ModernRuntime/COPYING",
+      "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+    },
+    {
+      "source": "lib/N64ModernRuntime/thirdparty/miniz/LICENSE",
+      "notice": "release-notices/upstream/lib/N64ModernRuntime/thirdparty/miniz/LICENSE",
+      "sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3"
+    },
+    {
+      "source": "lib/N64ModernRuntime/thirdparty/xxHash/LICENSE",
+      "notice": "release-notices/upstream/lib/N64ModernRuntime/thirdparty/xxHash/LICENSE",
+      "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a"
+    },
+    {
+      "source": "lib/N64ModernRuntime/thirdparty/xxHash/cli/COPYING",
+      "notice": "release-notices/upstream/lib/N64ModernRuntime/thirdparty/xxHash/cli/COPYING",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "source": "lib/N64Recomp/LICENSE",
+      "notice": "release-notices/upstream/lib/N64Recomp/LICENSE",
+      "sha256": "8f3594c18cd4f7e551795c2a11d17c460f7dd2c39ffde0db82f1de876aaac0c4"
+    },
+    {
+      "source": "lib/N64Recomp/lib/ELFIO/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/N64Recomp/lib/ELFIO/LICENSE.txt",
+      "sha256": "a15b5135eae48f2f6f6572ac4d7baf678761fdfde530344e9202fceb9e4e5014"
+    },
+    {
+      "source": "lib/N64Recomp/lib/fmt/LICENSE",
+      "notice": "release-notices/upstream/lib/N64Recomp/lib/fmt/LICENSE",
+      "sha256": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf"
+    },
+    {
+      "source": "lib/N64Recomp/lib/rabbitizer/LICENSE",
+      "notice": "release-notices/upstream/lib/N64Recomp/lib/rabbitizer/LICENSE",
+      "sha256": "f0df1d4bd58eb60274ae4a8d34e71acd7295903dae9b3b0a4872346ddd87846d"
+    },
+    {
+      "source": "lib/N64Recomp/lib/sljit/LICENSE",
+      "notice": "release-notices/upstream/lib/N64Recomp/lib/sljit/LICENSE",
+      "sha256": "37c7a090fc61388430d63fc97bf8a22ffce92d3ca2249aac572cfaf411d3070f"
+    },
+    {
+      "source": "lib/N64Recomp/lib/tomlplusplus/LICENSE",
+      "notice": "release-notices/upstream/lib/N64Recomp/lib/tomlplusplus/LICENSE",
+      "sha256": "529bc3900a9571e49db285b0df432397e70b881cc3bf48de6667ae74ff4b06d8"
+    },
+    {
+      "source": "lib/RecompFrontend/lib/GamepadMotionHelpers/LICENSE",
+      "notice": "release-notices/upstream/lib/RecompFrontend/lib/GamepadMotionHelpers/LICENSE",
+      "sha256": "206b2738a7c8d1c1e4c2a486a0c312887120caf56c53d3902145ec0e7b882397"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/RmlUi/Backends/RmlUi_Vulkan/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/RmlUi/Backends/RmlUi_Vulkan/LICENSE.txt",
+      "sha256": "f1f08c883d4ae6368fddba50b5ba8aab8d80847c1f57b6736eeb27a8eca43ac5"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/RmlUi/Include/RmlUi/Core/Containers/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/RmlUi/Include/RmlUi/Core/Containers/LICENSE.txt",
+      "sha256": "d863c46bf2d89839000a61993568663187e897c2d4c40b98bab432f413a2f487"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/RmlUi/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/RmlUi/LICENSE.txt",
+      "sha256": "40d3904bd62749b75acfec8d16a5d108d34e9a0b7c31ff1381964a006a4755aa"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/RmlUi/Source/Debugger/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/RmlUi/Source/Debugger/LICENSE.txt",
+      "sha256": "56fc1616600e0bfacbb7dcddd8157979211c96e8c6b5d059ee4230f0739f1ee9"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/freetype-windows-binaries/FTL.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/freetype-windows-binaries/FTL.TXT",
+      "sha256": "308dca54b5aaa4a6ba0880621fe3bcf287956821aa948430263062a8333625c0"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/freetype-windows-binaries/GPLv2.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/freetype-windows-binaries/GPLv2.TXT",
+      "sha256": "6046da9f0fbc470892625b2f1313f16b5ca375b5c869b3540ea7ef2ad8877a12"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/freetype-windows-binaries/LICENSE.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/freetype-windows-binaries/LICENSE.TXT",
+      "sha256": "84f47dc7f0887dd56b05f2f218060581c055e443bd7af18e46677bec3dcc2473"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/lunasvg/LICENSE",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/lunasvg/LICENSE",
+      "sha256": "8472fe0abf72389f09f4992ed4bfeb631e1f3cc49ad74d7711b75781c2c3464b"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/lunasvg/plutovg/LICENSE",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/lunasvg/plutovg/LICENSE",
+      "sha256": "8472fe0abf72389f09f4992ed4bfeb631e1f3cc49ad74d7711b75781c2c3464b"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/lunasvg/plutovg/source/FTL.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/lunasvg/plutovg/source/FTL.TXT",
+      "sha256": "8f4afd3c08eb39afc159e3d724c298b5d32f85f0176df607a9c95c88d9fe2396"
+    },
+    {
+      "source": "lib/rt64/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/LICENSE",
+      "sha256": "b242a9948efebf64d40331807202330ccf0e8704ea97ee4e970f51bb73e8f327"
+    },
+    {
+      "source": "lib/rt64/src/contrib/ddspp/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/ddspp/LICENSE",
+      "sha256": "06736e4b8168463eb81270d13f6d6903d56770046245c0ab70c2c0990e54968b"
+    },
+    {
+      "source": "lib/rt64/src/contrib/hlslpp/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/hlslpp/LICENSE",
+      "sha256": "dc8cb0dd4c9e0ffbdf900a33f4ce5dd6ed696c937f961c0074e743b67351d6cc"
+    },
+    {
+      "source": "lib/rt64/src/contrib/im3d/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/im3d/LICENSE",
+      "sha256": "f34331203ea84cafc5693bc85210dc7174bd1592192a5c04fa62c98fb8de4b42"
+    },
+    {
+      "source": "lib/rt64/src/contrib/imgui/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/imgui/LICENSE.txt",
+      "sha256": "f20418b409e53c8c9f4e90917ff395554a60320d4dfbf833da89b339cad8628a"
+    },
+    {
+      "source": "lib/rt64/src/contrib/implot/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/implot/LICENSE",
+      "sha256": "7238edd7d0cc63a200fd737f5c211be614b05e55aaf8c37b282b866488301af0"
+    },
+    {
+      "source": "lib/rt64/src/contrib/mupen64plus-core/LICENSES",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/mupen64plus-core/LICENSES",
+      "sha256": "2eff95fc290ae26695b1ce6c1948648463348c68086153edd9b9624708e4c4ea"
+    },
+    {
+      "source": "lib/rt64/src/contrib/mupen64plus-win32-deps/SDL2-2.26.3/COPYING.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/mupen64plus-win32-deps/SDL2-2.26.3/COPYING.txt",
+      "sha256": "ae4df3759a726538607b84c00ab8f8a5567d9f38ad5397486eb9b5c5f626caef"
+    },
+    {
+      "source": "lib/rt64/src/contrib/nativefiledialog-extended/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/nativefiledialog-extended/LICENSE",
+      "sha256": "cc8f6d4f2e9a7e966d049555edb8180e67549fb13d9119d96cdcce62c314e43c"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/LICENSE",
+      "sha256": "1ab676d4bb9370ae9b8c00887289dc9bdf532af6d588a192836ab0ffa3a10aa8"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/D3D12MemoryAllocator/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/D3D12MemoryAllocator/LICENSE.txt",
+      "sha256": "84efd78e4fdf7fe3bf1b9d9cb5dbeac77fc7f1cb50acfb9f223b99ef34543754"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/D3D12MemoryAllocator/NOTICES.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/D3D12MemoryAllocator/NOTICES.txt",
+      "sha256": "7b7fc5046e474378f4fe0bde65508e0d2b3146b58568ebc7cc192aea85ff91b8"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSE.md",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSE.md",
+      "sha256": "f43ba543d73f08f7401d99b697b2b741704eb22b5447a5021fd92b279b297646"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSES/Apache-2.0.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSES/Apache-2.0.txt",
+      "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSES/MIT.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/Vulkan-Headers/LICENSES/MIT.txt",
+      "sha256": "051daae2dae99c2b0fc9d8363cf704b9456ae0e3c89589ac755d506a0b2c10c3"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/VulkanMemoryAllocator/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/VulkanMemoryAllocator/LICENSE.txt",
+      "sha256": "e5fc8b0b0357a75d63649c8f2552576aaa6941c361a013710bb53afc64d3a8aa"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/metal-cpp/LICENSE.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/metal-cpp/LICENSE.txt",
+      "sha256": "0ac5f3eac17ae6f50f03ce73a49c2381dfea5e7abf22bbc454d63ca9219bbeb0"
+    },
+    {
+      "source": "lib/rt64/src/contrib/plume/contrib/volk/LICENSE.md",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/plume/contrib/volk/LICENSE.md",
+      "sha256": "caa98f7f688da6705bfa5ee5927f1154dc0648fa84f5e0629c86d2c20a514ecb"
+    },
+    {
+      "source": "lib/rt64/src/contrib/re-spirv/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/re-spirv/LICENSE",
+      "sha256": "1ab676d4bb9370ae9b8c00887289dc9bdf532af6d588a192836ab0ffa3a10aa8"
+    },
+    {
+      "source": "lib/rt64/src/contrib/spirv-cross/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/spirv-cross/LICENSE",
+      "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5"
+    },
+    {
+      "source": "lib/rt64/src/contrib/spirv-cross/LICENSES/Apache-2.0.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/spirv-cross/LICENSES/Apache-2.0.txt",
+      "sha256": "46d721e8b09a829ebacf7e1c51e863ef7492eb30e94103c852b2966ae3c5901a"
+    },
+    {
+      "source": "lib/rt64/src/contrib/spirv-cross/LICENSES/CC-BY-4.0.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/spirv-cross/LICENSES/CC-BY-4.0.txt",
+      "sha256": "0ef7814bce4078681833dd597a960fda6f81492a6fbfffbaa913ddbe56125588"
+    },
+    {
+      "source": "lib/rt64/src/contrib/spirv-cross/LICENSES/LicenseRef-KhronosFreeUse.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/spirv-cross/LICENSES/LicenseRef-KhronosFreeUse.txt",
+      "sha256": "0e286e7f2a537de029410638c583a7c095a903ce4d5fd758acd7e3fee46e4178"
+    },
+    {
+      "source": "lib/rt64/src/contrib/spirv-cross/LICENSES/MIT.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/spirv-cross/LICENSES/MIT.txt",
+      "sha256": "0459805ebfeff6e7cbe7a1913fe79e75ad192965dcfebceac11ec4c233acf53c"
+    },
+    {
+      "source": "lib/rt64/src/contrib/stb/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/stb/LICENSE",
+      "sha256": "11dd149dbc50748419a22fcec275b5bcfb4c2d86d9fba8802e5c4ffd40c94609"
+    },
+    {
+      "source": "lib/rt64/src/contrib/stb/data/herringbone/license.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/stb/data/herringbone/license.txt",
+      "sha256": "9346f129210dd57634ea90713cc4aaea3dba3c0794fcae7e34f941b7ed5b6ddc"
+    },
+    {
+      "source": "lib/rt64/src/contrib/xxHash/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/xxHash/LICENSE",
+      "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a"
+    },
+    {
+      "source": "lib/rt64/src/contrib/xxHash/cli/COPYING",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/xxHash/cli/COPYING",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "source": "lib/rt64/src/contrib/zstd/COPYING",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/zstd/COPYING",
+      "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+    },
+    {
+      "source": "lib/rt64/src/contrib/zstd/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/zstd/LICENSE",
+      "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+    },
+    {
+      "source": "lib/rt64/src/contrib/zstd/build/LICENSE",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/zstd/build/LICENSE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "SSSV release notice reference/DXC-LICENSE.txt",
+      "notice": "release-notices/DXC-LICENSE.txt",
+      "sha256": "27a49e35d1da96eba18fba54bc882667ff0ff8c0254f16f2b6e165d605ba7df8"
+    },
+    {
+      "source": "SSSV release notice reference/DXC-ThirdPartyNotices.txt",
+      "notice": "release-notices/DXC-ThirdPartyNotices.txt",
+      "sha256": "19512a5d0a015ef16d167272c164da49a604614a786206212a80ad486ed0be6d"
+    },
+    {
+      "source": "lib/rt64/src/contrib/json/json.hpp",
+      "notice": "release-notices/json-embedded-notice.txt",
+      "extraction": "verbatim source notice excerpt",
+      "sha256": "078647f4c072acebe6f85b72659f2eaa18787b5bdda154d615a2b01b113f57cc"
+    },
+    {
+      "source": "lib/N64ModernRuntime/thirdparty/concurrentqueue/concurrentqueue.h",
+      "notice": "release-notices/concurrentqueue-embedded-notice.txt",
+      "extraction": "verbatim source notice excerpt",
+      "sha256": "1d7dcb00c8abac571fb04bc70c0614d48a42e021080410d3f9d3385b99432645"
+    },
+    {
+      "source": "lib/rt64/src/contrib/miniz/miniz.h",
+      "notice": "release-notices/miniz-embedded-notice.txt",
+      "extraction": "verbatim source notice excerpt",
+      "sha256": "e4be19162735ceb394a57842f95ab587d4d19636d36a57654b2d09abf285bd62"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/freetype-windows-binaries/FTL.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/freetype-windows-binaries/FTL.TXT",
+      "sha256": "308dca54b5aaa4a6ba0880621fe3bcf287956821aa948430263062a8333625c0"
+    },
+    {
+      "source": "lib/RecompFrontend/recompui/lib/freetype-windows-binaries/GPLv2.TXT",
+      "notice": "release-notices/upstream/lib/RecompFrontend/recompui/lib/freetype-windows-binaries/GPLv2.TXT",
+      "sha256": "6046da9f0fbc470892625b2f1313f16b5ca375b5c869b3540ea7ef2ad8877a12"
+    },
+    {
+      "source": "lib/rt64/src/contrib/imgui/examples/libs/glfw/COPYING.txt",
+      "notice": "release-notices/upstream/lib/rt64/src/contrib/imgui/examples/libs/glfw/COPYING.txt",
+      "sha256": "3d63403fef9242cbfd31ce987464fffdc88a874685236c187b4a110978b31654"
+    },
+    {
+      "source": "lib/RecompFrontend/lib/SlotMap/slot_map.h",
+      "notice": "release-notices/slot_map-embedded-notice.txt",
+      "extraction": "verbatim opening source notice",
+      "sha256": "ddf78407caba04457e2eab2af44d9aeb94352b617452e5d5e2c3141010f83da0"
+    },
+    {
+      "source": "lib/N64ModernRuntime/thirdparty/sse2neon/sse2neon.h",
+      "notice": "release-notices/sse2neon-embedded-notice.txt",
+      "extraction": "verbatim opening source notice",
+      "sha256": "9c0d5cfbb0719feaa66637cc1c90d92566cd46f8d96bf52c88a159e6fb6b7323"
+    },
+    {
+      "source": "lib/rt64/src/contrib/json/json.hpp SPDX MIT + standard MIT license grant",
+      "notice": "release-notices/nlohmann-json-MIT.txt",
+      "sha256": "61e08da79c44061654015ce6b0c4061c23ee1dd18237fbf09e9bfda3c0ea2831"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/N64Recomp/RecompFrontend/main/COPYING",
+      "notice": "release-notices/RecompFrontend-current-upstream-COPYING.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "source": "Assets/menu/icons/LICENSE.txt",
+      "notice": "release-notices/upstream/Assets/menu/icons/LICENSE.txt",
+      "sha256": "b576195f9a06baab15e21458e58fb4acb789b23cf6ca52c88216a2bcfeb14903"
+    },
+    {
+      "source": "Assets/menu/icons/ATTRIBUTION.json",
+      "notice": "release-notices/upstream/Assets/menu/icons/ATTRIBUTION.json",
+      "sha256": "4e7f609c922ad88e260a44f9e333ac3f156a4d7e557914cdcd99e28b8a267bb3"
+    }
+  ],
+  "menu_asset_audit": {
+    "files": 32,
+    "contents": "OFL fonts and notices;22 newly authored GPL-3.0-only geometric SVG controls including VizMap; minimal CSS; no Wetrix ROM-derived game textures/audio found",
+    "limits": "Interface assets and original/derived game-art pack have separate rights scope"
+  },
+  "binary_component_scope": {
+    "HarfBuzz": "RmlUi HarfBuzz sample OFF in Windows cache; no linked HarfBuzz target identified. Include its platform package notice if enabled in another build.",
+    "MSDF": "No msdf dependency/target identified in pinned sources or current build.",
+    "GLFW": "Notice included conservatively for ImGui example tree; runtime uses SDL window backend, not GLFW.",
+    "FreeType": "Select FreeType License (FTL), copyright notice included; alternative GPLv2 text also preserved.",
+    "DXC": "DXC license/notices from reference release preserved; exact pinned tool binary provenance must remain in release inventory."
+  },
+  "frontend_license_followup": {
+    "pinned_checkout": "No top-level license file",
+    "official_upstream": "https://github.com/N64Recomp/RecompFrontend/blob/main/COPYING",
+    "license_added_commit": "2ddbfc8",
+    "published_license": "GPLv3",
+    "local_text": "release-notices/RecompFrontend-current-upstream-COPYING.txt",
+    "license_added_full_commit": "2ddbfc8adcfe9ba26520441f14488861fdcefef7"
+  },
+  "DXC_binary_reference_check": {
+    "dxcompiler.dll": {
+      "wetrix_sha256": "15304a82c8a61db615a83961d8967a5c468ae7ce77b86d8e9b3dec60f7ae2166",
+      "same_as_inspected_SSSV_binary": true
+    },
+    "dxil.dll": {
+      "wetrix_sha256": "2c70d034d38b06c6a1161efb9246cce296be248ff52eff6c1b587ce150e5f36d",
+      "same_as_inspected_SSSV_binary": true
+    }
+  },
+  "interface_icon_followup": {
+    "newly_authored": 22,
+    "license": "GPL-3.0-only",
+    "attribution": "Assets/menu/icons/ATTRIBUTION.json",
+    "all_on_disk_sha256_verified": true,
+    "legacy_reference_icons_shipped": false
+  }
+}
