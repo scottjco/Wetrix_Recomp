@@ -505,7 +505,7 @@ index 5a331aa..74a1832 100644
 \ No newline at end of file
 +};
 diff --git a/src/render/rt64_framebuffer_renderer.cpp b/src/render/rt64_framebuffer_renderer.cpp
-index 133c039..208194e 100644
+index 133c039..74680df 100644
 --- a/src/render/rt64_framebuffer_renderer.cpp
 +++ b/src/render/rt64_framebuffer_renderer.cpp
 @@ -15,6 +15,8 @@
@@ -537,7 +537,7 @@ index 133c039..208194e 100644
              }
          }
      }
-@@ -1447,6 +1462,24 @@ namespace RT64 {
+@@ -1447,6 +1462,36 @@ namespace RT64 {
          const interop::float2 halfPixelOffset = { 1.0f / framebuffer.viewport.width, -1.0f / framebuffer.viewport.height };
          const float middleViewport = (wideWidth / 2.0f) - (originalWidth / 2.0f);
          const float extOriginPercentage = p.extAspectPercentage;
@@ -549,20 +549,32 @@ index 133c039..208194e 100644
 +        std::fill_n(wetrixHudRight, 19, -10000.0f);
 +        for (uint32_t pr = 0; pr < fbPair.projectionCount; ++pr) {
 +            const Projection &hudProjection = fbPair.projections[pr];
-+            if (hudProjection.type != Projection::Type::Rectangle) continue;
 +            for (uint32_t d = 0; d < hudProjection.gameCallCount; ++d) {
-+                const auto &hudCall = hudProjection.gameCalls[d].callDesc;
++                const auto &hudGameCall = hudProjection.gameCalls[d];
++                const auto &hudCall = hudGameCall.callDesc;
 +                const unsigned tag = hudCall.wetrixLayer;
 +                if (tag >= 19 || !hudCall.wetrixMultiplayer) continue;
-+                wetrixHudLeft[tag] = std::min(wetrixHudLeft[tag], float(hudCall.rect.left(true)));
-+                wetrixHudRight[tag] = std::max(wetrixHudRight[tag], float(hudCall.rect.right(true)));
++                if (hudProjection.type == Projection::Type::Rectangle) {
++                    wetrixHudLeft[tag] = std::min(wetrixHudLeft[tag], float(hudCall.rect.left(true)));
++                    wetrixHudRight[tag] = std::max(wetrixHudRight[tag], float(hudCall.rect.right(true)));
++                }
++                else if (tag == 16 && hudCall.triangleCount > 0) {
++                    // Practice's boxed digital counter is orthographic geometry:
++                    // both the solid panel and digit sprites use triangles.
++                    for (uint32_t vi = 0; vi < hudCall.triangleCount * 3; ++vi) {
++                        const auto vertex = drawData.faceIndices[hudGameCall.meshDesc.faceIndicesStart + vi];
++                        const float x = float(drawData.posScreen[vertex].x);
++                        wetrixHudLeft[tag] = std::min(wetrixHudLeft[tag], x);
++                        wetrixHudRight[tag] = std::max(wetrixHudRight[tag], x);
++                    }
++                }
 +            }
 +        }
 +#endif
          uint32_t vertexTestZFaceIndicesStart = 0;
          int32_t vertexTestZCallIndex = -1;
          RenderViewport viewportClip;
-@@ -1506,8 +1539,111 @@ namespace RT64 {
+@@ -1506,8 +1551,111 @@ namespace RT64 {
                  viewportClip = convertViewportRect(viewport.rect(viewportClipRatios), p.resolutionScale, p.fbWidth, projInvRatioScale, extOriginPercentage, 0.0f, viewportOrigin, viewportOrigin);
              }
  
@@ -674,11 +686,16 @@ index 133c039..208194e 100644
                  renderIndices.instanceIndex = call.callDesc.callIndex;
                  renderIndices.faceIndicesStart = call.meshDesc.faceIndicesStart;
                  renderIndices.rdpTileIndex = call.callDesc.tileIndex;
-@@ -1548,6 +1684,14 @@ namespace RT64 {
+@@ -1548,6 +1696,19 @@ namespace RT64 {
                      }
  
                      clearRect.rect = convertFixedRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
 +#ifdef WETRIX_RECOMP
++                    if (call.callDesc.wetrixLayer == 16 && p.fbWidth == 320 &&
++                        call.callDesc.wetrixMultiplayer && aspectRatioScale > 1.001f) {
++                        clearRect.rect.left += lround(hudShift);
++                        clearRect.rect.right += lround(hudShift);
++                    }
 +                    // The menu's striped backdrop is a stack of fill rectangles,
 +                    // not a textured image. Extend just these native-width bands.
 +                    if (p.fbWidth == 320 && call.callDesc.rect.ulx <= 64 && call.callDesc.rect.lrx >= 1216) {
@@ -689,7 +706,7 @@ index 133c039..208194e 100644
                  }
                  else if (call.callDesc.extendedType != DrawExtendedType::None) {
                      switch (call.callDesc.extendedType) {
-@@ -1631,6 +1775,35 @@ namespace RT64 {
+@@ -1631,6 +1792,35 @@ namespace RT64 {
                              instanceDrawCall.type = InstanceDrawCall::Type::IndexedTriangles;
                              triangles.indexStart = triangles.vertexTestZ ? vertexTestZFaceIndicesStart : call.meshDesc.faceIndicesStart;
                              invRatioScale = projInvRatioScale;
@@ -725,7 +742,7 @@ index 133c039..208194e 100644
                              break;
                          }
                          case Projection::Type::Rectangle: {
-@@ -1653,6 +1826,39 @@ namespace RT64 {
+@@ -1653,6 +1843,39 @@ namespace RT64 {
                              }
  
                              RenderViewport viewportRect = convertViewportRect(call.callDesc.rect, p.resolutionScale, p.fbWidth, invRatioScale, extOriginPercentage, horizontalMisalignment, call.callDesc.rectLeftOrigin, call.callDesc.rectRightOrigin);
@@ -765,7 +782,7 @@ index 133c039..208194e 100644
                              triangles.screenScale = { viewportRect.width / framebuffer.viewport.width, viewportRect.height / framebuffer.viewport.height };
                              triangles.screenOffset.x = halfPixelOffset.x + ((viewportRect.x + viewportRect.width / 2.0f) - halfViewportSize.x) / halfViewportSize.x;
                              triangles.screenOffset.y = halfPixelOffset.y + (halfViewportSize.y - (viewportRect.y + viewportRect.height / 2.0f)) / halfViewportSize.y;
-@@ -1694,6 +1900,24 @@ namespace RT64 {
+@@ -1694,6 +1917,24 @@ namespace RT64 {
                          if (usesViewport) {
                              triangles.scissor = viewportScissorIntersection(viewportClip, triangles.scissor);
                          }
@@ -790,7 +807,7 @@ index 133c039..208194e 100644
                          
                          if (triangles.vertexTestZ && usesViewport) {
                              instanceDrawCallVector[vertexTestZCallIndex].vertexTestZ.indexCount += call.callDesc.triangleCount * 3;
-@@ -1929,4 +2153,4 @@ namespace RT64 {
+@@ -1929,4 +2170,4 @@ namespace RT64 {
          unsigned int im3dVertexCount;
      };
  };
