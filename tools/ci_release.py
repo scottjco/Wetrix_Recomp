@@ -76,10 +76,10 @@ def package(build,platform,arch):
     if platform=="Windows":
         (stage/"Run Wetrix.cmd").write_text('@echo off\ncd /d "%~dp0"\nWetrixRuntime.exe Assets/data.z64\npause\n')
     else:
-        launcher=stage/"Run Wetrix.sh"
+        launcher=stage/("Run Wetrix.command" if platform=="macOS" else "Run Wetrix.sh")
         launcher.write_text('#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./WetrixRuntime Assets/data.z64\n')
         launcher.chmod(0o755)
-    for n in ["README.md","CHANGELOG.md","LICENSE"]:
+    for n in ["README.md","CHANGELOG.md","LICENSE","THIRD_PARTY_NOTICES.md"]:
         if (ROOT/n).is_file(): shutil.copy2(ROOT/n,stage/n)
     for p in (ROOT/"lib").rglob("*"):
         if p.is_file() and ".git" not in p.parts and p.name.lower().startswith(("license","licence","copying","notice")):
