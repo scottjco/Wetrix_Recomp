@@ -1,6 +1,6 @@
 # Platform builds
 
-Version 0.1.0 has build targets for Windows x64, Linux x64, macOS Apple Silicon and macOS Intel. Windows is the locally playtested platform. All four platforms passed native compilation, the Pak persistence/controller-protocol test and packaging in [the release build run](https://github.com/scottjco/Wetrix_Recomp/actions/runs/41551884023). Compilation alone does not establish gameplay parity.
+Version 0.1.1 has build targets for Windows x64, Linux x64, macOS Apple Silicon and macOS Intel. Windows is the locally playtested platform. Version 0.1.0 passed native compilation on all four platforms, the Pak persistence/controller-protocol test and packaging in [the release build run](https://github.com/scottjco/Wetrix_Recomp/actions/runs/41551884023). Compilation alone does not establish gameplay parity.
 
 ## ROM-free release builds
 
@@ -15,8 +15,8 @@ The verified `generated/recompiled-source.tar.gz` contains translated C/C++ and 
 
 The release workflow installs platform dependencies and builds on native Windows, Ubuntu and macOS runners. Windows uses D3D12, Linux uses Vulkan, and macOS uses RT64's Metal backend. Linux requires SDL2, GTK3, FreeType and a suitable Vulkan driver. macOS packages target macOS 15 or newer, bundle their Homebrew library dependencies and are ad-hoc signed, not notarized. Linux packages are built on Ubuntu 24.04.
 
-Use `Run Wetrix.cmd` on Windows, `Run Wetrix.sh` on Linux, or `Run Wetrix.command` on macOS. Place your supported ROM at `Assets/data.z64` relative to that launcher. Extract into a writable folder because preferences and saves are portable.
+Open `Wetrix.exe` directly on Windows, `Run Wetrix.sh` on Linux, or `Run Wetrix.command` on macOS. If the supported ROM is missing, a file picker verifies and imports your selection into `Assets/data.z64`. Extract into a writable folder because preferences and saves are portable.
 
-Application archives exclude ROMs, the optional HD texture pack, saves and personal settings. The HD pack is a separate ZIP that extracts a `Textures/hd-sprites/` directory beside the application. Removing it hides the HD setting; a new installation with the pack defaults to HD On.
+Application archives include the HD texture pack in `Textures/hd-sprites/` beside the application. They exclude ROMs, saves and personal settings. Removing it hides the HD setting; a new installation with the pack defaults to HD On.
 
 Full licensing texts and corresponding project source/patches accompany the public release. See the repository's Actions and Releases pages for actual build results and available downloads.

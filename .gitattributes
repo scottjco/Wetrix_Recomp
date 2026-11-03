@@ -16,3 +16,4 @@ LICENSE -text -whitespace
 *.otf binary
 *.tar.gz binary
 *.ico binary
+*.zip binary

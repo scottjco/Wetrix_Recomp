@@ -10,11 +10,11 @@ parser.add_argument('output', type=Path)
 args = parser.parse_args()
 pack = root / 'Textures/hd-sprites'
 database = json.loads((pack / 'rt64.json').read_text())
-readme = '''Wetrix N64 Recomp - optional HD Textures pack
+readme = '''Wetrix N64 Recomp - bundled HD Textures
 
-Install: extract this ZIP into your extracted application folder, beside
-the WetrixRuntime executable and Run Wetrix launcher (any platform).
-The resulting manifest must be Textures/hd-sprites/rt64.json.
+Included with Wetrix Recompiled 0.1.1 on every platform. No separate download
+or installation is required. Keep Textures/hd-sprites beside the Wetrix
+application; its manifest is Textures/hd-sprites/rt64.json.
 Restart the game after adding or removing the pack.
 
 Graphics > HD Textures controls the whole pack and defaults to On.

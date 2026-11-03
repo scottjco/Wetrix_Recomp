@@ -1,6 +1,6 @@
-# Wetrix Recompiled 0.1.0
+# Wetrix Recompiled 0.1.1
 
-A native PC recompilation of Nintendo 64 Wetrix, built with N64: Recompiled, RT64 and RecompFrontend. Supply your own supported ROM. The application download includes neither a ROM nor the optional HD game-art pack.
+A native PC recompilation of Nintendo 64 Wetrix, built with N64: Recompiled, RT64 and RecompFrontend. Supply your own supported ROM. HD textures are included in the application download; the ROM is not.
 
 This is an early release. Windows has received local builds and human playtesting. Successful compilation does not establish that every game mode, controller or platform works correctly.
 
@@ -27,9 +27,9 @@ Classic, Challenge and Practice, with HD Textures and Expand enabled. Each board
 
 ## Getting started
 
-Download the application for your platform from [Releases](https://github.com/scottjco/Wetrix_Recomp/releases/tag/v0.1.0). The optional HD texture pack is a separate download there. macOS builds require macOS 15 or newer; Linux builds use Ubuntu 24.04 as their baseline.
+Download the application for your platform from [Releases](https://github.com/scottjco/Wetrix_Recomp/releases/tag/v0.1.1). HD textures are bundled in every platform archive. macOS builds require macOS 15 or newer; Linux builds use Ubuntu 24.04 as their baseline.
 
-Extract the application into a writable folder. On Windows, open **WetrixRuntime.exe** directly; no command script or console window is needed. On Linux/macOS use the supplied launcher. If `Assets/data.z64` is missing, a file picker opens; select your supported ROM to verify and import it for future launches. Press **Escape** for settings and **Alt+Enter** to switch fullscreen/windowed.
+Extract the application into a writable folder. On Windows, open **Wetrix.exe** directly; no command script or console window is needed. On Linux/macOS use the supplied launcher. If `Assets/data.z64` is missing, a file picker opens; select your supported ROM to verify and import it for future launches. Press **Escape** for settings and **Alt+Enter** to switch fullscreen/windowed.
 
 The supported ROM is an 8,388,608-byte big-endian `.z64` image, internal title `WETRIX`, country E, revision 0, with SHA-256:
 
@@ -61,9 +61,9 @@ Preferences live under `config/user/`; the controller pak is `saves/controller1.
 
 - Targeted corrections for water rendering performance, graphics commands, HUD placement, multiplayer music and rainbow visual timing.
 
-## Optional HD pack
+## HD Textures
 
-Install the separate pack's `Textures/hd-sprites/` folder beside the application. **HD Textures** defaults to on when a valid pack is installed and can be disabled in settings. Without a pack, its setting is hidden and the original art comes from your ROM.
+The included `Textures/hd-sprites/` folder sits beside the application. **HD Textures** is enabled by default for new profiles and can be disabled in settings to use the original artwork from your ROM. If you remove the texture folder, the setting is hidden.
 
 The pack redraws many bitmap fonts, digits, menus, HUD meters/icons, clocks, earthquake indicators, carousel titles and animated sprites, plus the idle logo and studio subtitle. Native placement and frame layouts are retained. Native 3D logos remain geometry. Not every texture, language bank or scene is remastered.
 
@@ -93,7 +93,7 @@ Settings fonts include Inter, Noto Emoji and PromptFont. PromptFont is by Yukari
 
 ## AI assistance disclosure
 
-AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-engineering analysis, asset inventory and documentation. The optional HD pack includes AI-generated and AI-edited redraws followed by extraction, alignment and alpha cleanup.
+AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-engineering analysis, asset inventory and documentation. The bundled HD artwork includes AI-generated and AI-edited redraws followed by extraction, alignment and alpha cleanup.
 
 Claude would probably file these water bugs under “watergate” and call the folder a feature. (Yes, that name is intentional.)
 

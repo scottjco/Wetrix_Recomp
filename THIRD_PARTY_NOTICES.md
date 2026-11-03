@@ -35,16 +35,16 @@ The pinned checkout `b3b7ebb4ec1a8a763c0191486f1b3329f9499a48` contains no top-l
 
 ## Interface assets and fonts
 
-`Assets/menu/` contains the settings interface: Inter Variable, Noto Emoji, PromptFont, their notices, generic SVG control/navigation icons, and minimal CSS. Inspection found no Wetrix ROM-derived raster, music, ROM image or game texture there. These interface files are distinct from the optional `Textures/` game-art pack.
+`Assets/menu/` contains the settings interface: Inter Variable, Noto Emoji, PromptFont, their notices, generic SVG control/navigation icons, and minimal CSS. Inspection found no Wetrix ROM-derived raster, music, ROM image or game texture there. These interface files are distinct from the bundled `Textures/` game artwork.
 
 Inter: Copyright 2016 The Inter Project Authors. Noto Emoji: Copyright 2013 Google LLC. PromptFont by Yukari "Shinmera" Hafner, based on Xolonium by Severin Meyer: https://shinmera.com/promptfont . Font files retain their SIL Open Font License 1.1 texts both alongside the assets and in release notices. Font trademarks remain with their owners.
 
 The twenty-two shipped SVG control/navigation and visual-mapping icons are newly authored geometric interface artwork by Wetrix N64 Recomp contributors, licensed under GPL-3.0-only. Their roles and SHA-256 hashes are recorded in `Assets/menu/icons/ATTRIBUTION.json`, with their license notice in `Assets/menu/icons/LICENSE.txt`. They replace the earlier copied reference icons; no license grant from the Silicon Valley project or an external icon author is asserted. Font licenses remain independent of the icon license.
 
-## Optional HD game-art pack
+## Bundled HD game artwork
 
-The application archive excludes `Textures/`. Optional game-related redraws are distributed separately, with AI assistance disclosed. Original/derived game artwork and trademarks are not relicensed by the application's GPL. A replacement being newly generated, high resolution, or AI-assisted does not establish rights in the original designs. The project makes no claim of permission from the original game's rights holders.
+Version 0.1.1 application archives include `Textures/hd-sprites/` with AI assistance disclosed and a separate artwork rights notice. Original/derived game artwork and trademarks are not relicensed by the application's GPL. A replacement being newly generated, high resolution, or AI-assisted does not establish rights in the original designs. The project makes no claim of permission from the original game's rights holders.
 
 ## Application icon
 
-The embedded desktop icon in `resources/wetrix.ico` is converted from the reviewed AI-assisted HD Wetrix logo redraw. Its original game design and trademark remain with their rights holders. This small application-branding asset is separate from the optional texture pack and excluded from the application code GPL grant. See `resources/NOTICE.txt`.
+The embedded desktop icon in `resources/wetrix.ico` is converted from the reviewed AI-assisted HD Wetrix logo redraw. Its original game design and trademark remain with their rights holders. This small application-branding asset is distinct from the bundled gameplay textures and excluded from the application code GPL grant. See `resources/NOTICE.txt`.

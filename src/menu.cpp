@@ -35,7 +35,7 @@ namespace recomp {
 static std::filesystem::path config_path;
 void register_config_path(std::filesystem::path path) { config_path=std::move(path); }
 std::filesystem::path get_config_path() { return config_path; }
-const Version& get_project_version() { static const Version version{0,1,0,""}; return version; }
+const Version& get_project_version() { static const Version version{0,1,1,""}; return version; }
 }
 namespace ultramodern {
 bool is_game_started() { return true; }

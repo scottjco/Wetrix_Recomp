@@ -63,11 +63,11 @@ jobs:
       - name: Test Pak persistence and controller protocol
         run: |
           if [ "$RUNNER_OS" = Windows ]; then build-release/WetrixPakTest.exe; else build-release/WetrixPakTest; fi
-      - name: Package without ROM, texture packs or saves
+      - name: Package with HD textures, without ROM or saves
         run: python tools/ci_release.py package --platform '${{ matrix.platform }}' --arch '${{ matrix.arch }}'
       - uses: actions/upload-artifact@v4
         with:
-          name: WetrixRecompiled-0.1.0-${{ matrix.platform }}-${{ matrix.arch }}
+          name: WetrixRecompiled-0.1.1-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
             dist/*.zip
             dist/*.tar.gz
