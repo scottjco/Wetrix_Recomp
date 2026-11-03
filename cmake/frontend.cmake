@@ -48,7 +48,9 @@ target_sources(WetrixRuntime PRIVATE src/menu.cpp src/wetrix_devices.cpp
   lib/N64ModernRuntime/librecomp/src/config.cpp
   lib/N64ModernRuntime/librecomp/src/config_option.cpp)
 target_link_libraries(WetrixRuntime PRIVATE recompui recompinput nfd)
-target_compile_options(WetrixRuntime PRIVATE /Gy)
-target_link_options(WetrixRuntime PRIVATE /OPT:REF)
+if(MSVC)
+  target_compile_options(WetrixRuntime PRIVATE /Gy)
+  target_link_options(WetrixRuntime PRIVATE /OPT:REF)
+endif()
 add_custom_command(TARGET WetrixRuntime POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/Assets/menu" "$<TARGET_FILE_DIR:WetrixRuntime>/assets")
