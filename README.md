@@ -9,11 +9,8 @@ This is an early release. Windows has received local builds and human playtestin
 Actual Windows captures of the Classic title menu. The game animates between captures; these are not identical frames. [Capture details](docs/screenshots/CAPTURE-NOTES.txt).
 
 | | Original 4:3 | Expand widescreen |
-
 | --- | --- | --- |
-
 | Original artwork | ![Original artwork in 4:3](docs/screenshots/title-native-original.png) | ![Original artwork in Expand](docs/screenshots/title-native-expand.png) |
-
 | Optional HD artwork | ![HD artwork in 4:3](docs/screenshots/title-hd-original.png) | ![HD artwork in Expand](docs/screenshots/title-hd-expand.png) |
 
 ### Gameplay
@@ -21,10 +18,12 @@ Actual Windows captures of the Classic title menu. The game animates between cap
 Classic, Challenge and Practice, with HD Textures and Expand enabled. Each board was started through its native menu callback and played through a batch of piece drops until water appeared, then frozen after one second of flow, with the spill container kept empty. Captured in Original FPS mode; the published game is unchanged.
 
 | Classic | Challenge | Practice |
-
 | --- | --- | --- |
-
 | [![Classic gameplay](docs/screenshots/classic-hd-expand.png)](docs/screenshots/classic-hd-expand.png) | [![Challenge gameplay](docs/screenshots/challenge-hd-expand.png)](docs/screenshots/challenge-hd-expand.png) | [![Practice gameplay](docs/screenshots/practice-hd-expand.png)](docs/screenshots/practice-hd-expand.png) |
+
+![Redacted Wetrix illustration](docs/screenshots/redacted.png)
+
+*How did that one get in here? Pay no attention.*
 
 ## Getting started
 
@@ -99,7 +98,3 @@ AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-eng
 Claude would probably file these water bugs under “watergate” and call the folder a feature. (Yes, that name is intentional.)
 
 The human project owner directed the work, reviewed visuals and playtested changes. That does not make the implementation wholly human-authored or guarantee that every AI-assisted change is correct. Credit for the game and the foundations enabling this project stays with their original creators and contributors.
-
-![Redacted Wetrix illustration](docs/screenshots/redacted.png)
-
-*How did that one get in here? Pay no attention.*
