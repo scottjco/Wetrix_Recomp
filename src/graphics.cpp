@@ -9,7 +9,7 @@
 #ifdef __APPLE__
 #include <SDL_metal.h>
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 #include <SDL_syswm.h>
 #endif
 #include <atomic>
@@ -96,6 +96,22 @@ bool wetrix_graphics_init(uint8_t* rdram, uint8_t* header) {
     if(SDL_InitSubSystem(SDL_INIT_VIDEO)!=0) return false;
     SDL_Rect area{0,0,1280,720};
     SDL_GetDisplayUsableBounds(0,&area);
+    // Automatic follows the cursor, including displays with negative origins.
+    // Backends without global mouse coordinates retain display zero's fallback.
+    int mouse_x=0,mouse_y=0;
+    SDL_ClearError();
+    SDL_GetGlobalMouseState(&mouse_x,&mouse_y);
+    if (!*SDL_GetError()) {
+        for(int i=0;i<SDL_GetNumVideoDisplays();++i) {
+            SDL_Rect bounds{};
+            if(SDL_GetDisplayBounds(i,&bounds)==0 && mouse_x>=bounds.x && mouse_y>=bounds.y &&
+               mouse_x-bounds.x<bounds.w && mouse_y-bounds.y<bounds.h) {
+                SDL_Rect usable{};
+                if(SDL_GetDisplayUsableBounds(i,&usable)==0) area=usable;
+                break;
+            }
+        }
+    }
     // Read the saved startup display before creating the window/settings UI.
     // SDL's display name is also used as the enum key in the menu.
     SDL_Rect startup_area=area;
@@ -126,7 +142,7 @@ bool wetrix_graphics_init(uint8_t* rdram, uint8_t* header) {
         startup_area.y+(startup_area.h-startup_height)/2,
         startup_width,startup_height,window_flags);
     if(!window) return false;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
     SDL_SysWMinfo info{}; SDL_VERSION(&info.version);
     if(!SDL_GetWindowWMInfo(window,&info)) return false;
 #endif
@@ -137,8 +153,11 @@ bool wetrix_graphics_init(uint8_t* rdram, uint8_t* header) {
 #ifdef _WIN32
     core.window = info.info.win.window;
 #elif defined(__APPLE__)
-    core.window.window = window;
-    core.window.view = SDL_Metal_GetLayer(SDL_Metal_CreateView(window));
+    core.window.window = info.info.cocoa.window;
+    SDL_MetalView metal_view=SDL_Metal_CreateView(window);
+    if(!metal_view) return false;
+    core.window.view = SDL_Metal_GetLayer(metal_view);
+    if(!core.window.view) return false;
 #else
     core.window = window;
 #endif
