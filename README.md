@@ -1,4 +1,4 @@
-# Wetrix Recompiled 0.1.1
+8# Wetrix Recompiled 0.1.1
 
 A native PC recompilation of Nintendo 64 Wetrix, built with N64: Recompiled, RT64 and RecompFrontend. Supply your own supported ROM. HD textures are included in the application download; the ROM is not.
 
@@ -91,10 +91,6 @@ Project-authored integration code is **GPL-3.0-or-later**; see [LICENSE](LICENSE
 
 Settings fonts include Inter, Noto Emoji and PromptFont. PromptFont is by Yukari "Shinmera" Hafner, based on Xolonium by Severin Meyer. Their SIL Open Font License notices accompany the assets.
 
-## AI assistance disclosure
+## AI 
 
-AI was used extensively. OpenAI Codex assisted with code, debugging, reverse-engineering analysis, asset inventory and documentation. The bundled HD artwork includes AI-generated and AI-edited redraws followed by extraction, alignment and alpha cleanup.
-
-Claude would probably file these water bugs under “watergate” and call the folder a feature. (Yes, that name is intentional.)
-
-The human project owner directed the work, reviewed visuals and playtested changes. That does not make the implementation wholly human-authored or guarantee that every AI-assisted change is correct. Credit for the game and the foundations enabling this project stays with their original creators and contributors.
+Yes.
