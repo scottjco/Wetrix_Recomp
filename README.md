@@ -1,4 +1,4 @@
-8# Wetrix Recompiled 0.1.1
+# Wetrix Recompiled 0.1.1
 
 A native PC recompilation of Nintendo 64 Wetrix, built with N64: Recompiled, RT64 and RecompFrontend. Supply your own supported ROM. HD textures are included in the application download; the ROM is not.
 
